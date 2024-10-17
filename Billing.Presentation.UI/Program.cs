@@ -1,10 +1,15 @@
+using Billing.Application;
+using Billing.Infrastructure;
 using Billing.Presentation.UI.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseWindowsService();
 
+// Add Services to the container
 builder.Services.AddWindowsService(options => options.ServiceName = "Billing Processor");
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
 
 builder.WebHost.UseKestrel((context, serverOptions) =>
 {
