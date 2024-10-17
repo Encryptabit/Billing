@@ -1,6 +1,6 @@
 ﻿namespace Billing.Infrastructure.ExternalServices;
-
-public class WorkOSService
+using Billing.Application.Interfaces;
+public class WorkOSService 
 {
     
 }

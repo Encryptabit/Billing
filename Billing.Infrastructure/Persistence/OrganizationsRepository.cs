@@ -1,6 +1,8 @@
-﻿namespace Billing.Infrastructure.Persistence;
+﻿using Billing.Application.Interfaces;
 
-public class OrganizationsRepository
+namespace Billing.Infrastructure.Persistence;
+
+public class OrganizationsRepository : IOrganizationsRepository
 {
     
 }
