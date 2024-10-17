@@ -1,6 +1,5 @@
-﻿namespace Billing.Application.UseCases.Billing;
+﻿using Billing.Application.Interfaces;
 
-public class UpdateArcturusTypeCommand
-{
-    
-}
+namespace Billing.Application.UseCases.Billing;
+
+public record UpdateArcturusTypeCommand(int DbID, short NewArcturusType);
