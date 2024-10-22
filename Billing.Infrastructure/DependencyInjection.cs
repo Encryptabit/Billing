@@ -2,6 +2,7 @@
 using Billing.Infrastructure.ExternalServices;
 using Billing.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
+using WorkOS;
 
 namespace Billing.Infrastructure;
 
@@ -12,10 +13,12 @@ public static class DependencyInjection
         services.AddScoped<IBillingRepository, BillingRepository>();
         services.AddScoped<IDatabasesRepository, DatabasesRepository>();
         services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
+        services.AddHttpClient();
         
         // Register External Services and other infra related dependencies
-        // services.AddScoped<IWorkOSService, WorkOSService>();
-        // services.AddScoped<IIdentityServerService ,IdentityServerService>();
+        services.AddScoped<SSOService>();
+        services.AddScoped<IWorkOSService, WorkOSService>();
+        services.AddScoped<IIdentityServerService ,IdentityServerService>();
         
         return services;
     }
