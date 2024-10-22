@@ -1,0 +1,59 @@
+﻿@page "/service-overview"
+@using Billing.Application.Interfaces
+@using WorkOS
+@inject IOrganizationCacheServices OrganizationCacheServices
+@attribute [StreamRendering]
+
+<PageTitle>Service Overview</PageTitle>
+
+<h1>External Services</h1>
+
+<h2>Work OS</h2>
+<p>WorkOS Connections Data</p>
+
+@if ( _connections == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Organization ID</th>
+                <th>Type</th>
+                <th>Connection ID</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>State</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var connection in _connections)
+            {
+                <tr>
+                    <td>@connection.Name</td>
+                    <td>@connection.OrganizationId</td>
+                    <td>@connection.Type</td>
+                    <td>@connection.Id</td>
+                    <td>@connection.CreatedAt</td>
+                    <td>@connection.UpdatedAt</td>
+                    <td>@connection.State</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Connection> _connections;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        var result = await OrganizationCacheServices.GetWorkOSConnectionsAsync();
+
+        _connections = result.Data;
+    }
+}

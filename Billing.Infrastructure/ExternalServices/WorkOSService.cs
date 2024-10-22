@@ -8,9 +8,9 @@ public class WorkOSService : IWorkOSService
 {
     private readonly SSOService _ssoService; 
     
-    public WorkOSService(IConfiguration _configuration, SSOService ssoService)
+    public WorkOSService(string apiKey, SSOService ssoService)
     {
-        WorkOS.WorkOS.SetApiKey(_configuration["WorkOS:ApiKey"]);
+        WorkOS.WorkOS.SetApiKey(apiKey);
         _ssoService = ssoService;
     }
 

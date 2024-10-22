@@ -6,10 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseWindowsService();
 
+builder.Configuration.AddUserSecrets<Program>();
+
 // Add Services to the container
 builder.Services.AddWindowsService(options => options.ServiceName = "Billing Processor");
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.WebHost.UseKestrel((context, serverOptions) =>
 {

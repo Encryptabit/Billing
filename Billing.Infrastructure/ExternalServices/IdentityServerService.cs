@@ -19,7 +19,7 @@ public class IdentityServerService: IIdentityServerService
     _identityClient = new HttpClient();
   }
 
-  public async Task<List<int>> FetchRestApiParticipantsAsync()
+  public async Task<List<int>> FetchRestApiConnectionsAsync()
   {
      DiscoveryDocumentResponse discoveryDoc = await _identityClient.GetDiscoveryDocumentAsync();
      

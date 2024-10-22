@@ -2,5 +2,5 @@
 
 public interface IIdentityServerService
 {
-    Task<List<int>> FetchRestApiParticipantsAsync(); 
+    Task<List<int>> FetchRestApiConnectionsAsync(); 
 }
