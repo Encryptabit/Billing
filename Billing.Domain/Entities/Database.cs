@@ -11,13 +11,13 @@ public class Database(
     bool restApiAccess,
     bool ssoAccess)
 {
-    public int DbID { get; set; } = dbId;
+    public int DbId { get; set; } = dbId;
     public string Company { get; set; } = company;
     public bool NewAuthentication { get; set; } = newAuthentication;
-    public Bill activeBill { get; set; } = bill;
-    public Billing billingHistory { get; set; } = billHistory;
-    public bool VMI { get; set; } = vmi;
+    public Bill ActiveBill { get; set; } = bill;
+    public Billing BillingHistory { get; set; } = billHistory;
+    public bool Vmi { get; set; } = vmi;
     public short ArcturusType{ get; set; } = arcturusType;
     public bool RestApiAccess  { get; set; } = restApiAccess;
-    public bool SSOAccess { get; set; } = ssoAccess;
+    public bool SsoAccess { get; set; } = ssoAccess;
 }

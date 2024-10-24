@@ -16,14 +16,14 @@ public class OrganizationCacheServices(
     
     public async Task<WorkOSList<Connection>> GetWorkOSConnectionsAsync()
     {
-        if (!_cache.TryGetValue("SSOOrganizations", out WorkOSList<Connection> connections))
+        if (!_cache.TryGetValue("SSOConnections", out WorkOSList<Connection> connections))
         {
            Interlocked.Increment(ref _cacheMisses);
            
            // async fetch workos api
            connections = await _workOsService.FetchWorkOSConnectionsAsync();
            
-           _cache.Set("SSOConnections", connections);
+           _cache.Set("SSOConnections", connections, TimeSpan.FromHours(1));
         }
         else
         {
@@ -40,7 +40,7 @@ public class OrganizationCacheServices(
             Interlocked.Increment(ref _cacheMisses);
             restApiConnections = await _identityServerService.FetchRestApiConnectionsAsync();
             
-            _cache.Set("RestApiConnections", restApiConnections);
+            _cache.Set("RestApiConnections", restApiConnections, TimeSpan.FromHours(1));
         }
         else
         {

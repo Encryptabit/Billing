@@ -44,6 +44,8 @@ else
             }
         </tbody>
     </table>
+
+    <button class="btn btn-primary" @onclick="RefreshConnectionsList">Get WorkOS Connections</button>
 }
 
 @code {
@@ -52,8 +54,16 @@ else
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
+        await RefreshConnectionsList();
+
+    }
+
+    public async Task<List<Connection>> RefreshConnectionsList()
+    {
         var result = await OrganizationCacheServices.GetWorkOSConnectionsAsync();
 
         _connections = result.Data;
+
+        return _connections;
     }
 }
