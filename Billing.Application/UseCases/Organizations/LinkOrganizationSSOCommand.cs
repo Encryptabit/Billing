@@ -4,3 +4,8 @@ public class LinkOrganizationSSOCommand
 {
     
 }
+
+public class LinkOrganizationSSOCommandHandler
+{
+    
+}

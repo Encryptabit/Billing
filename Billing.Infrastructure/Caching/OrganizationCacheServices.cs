@@ -14,14 +14,14 @@ public class OrganizationCacheServices(
     private static int _cacheMisses = 0;
     private string GetInternalOrgIdCacheKey(int organizationId) => $"internal_org_{organizationId}";
     
-    public async Task<WorkOSList<Connection>> GetWorkOSConnectionsAsync()
+    public async Task<WorkOSList<Connection>> GetWorkOSConnectionsAsync(bool rebuildCache = false, CancellationToken cancellationToken = default)
     {
-        if (!_cache.TryGetValue("SSOConnections", out WorkOSList<Connection> connections))
+        if (!_cache.TryGetValue("SSOConnections", out WorkOSList<Connection> connections) || rebuildCache)
         {
            Interlocked.Increment(ref _cacheMisses);
-           
+
            // async fetch workos api
-           connections = await _workOsService.FetchWorkOSConnectionsAsync();
+           connections = await _workOsService.FetchWorkOSConnectionsAsync(cancellationToken);
            
            _cache.Set("SSOConnections", connections, TimeSpan.FromHours(1));
         }

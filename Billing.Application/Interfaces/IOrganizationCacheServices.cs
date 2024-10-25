@@ -4,7 +4,7 @@ namespace Billing.Application.Interfaces;
 
 public interface IOrganizationCacheServices
 {
-    Task<WorkOSList<Connection>> GetWorkOSConnectionsAsync();
+    Task<WorkOSList<Connection>> GetWorkOSConnectionsAsync(bool rebuildCache, CancellationToken cancellationToken);
     Task<List<int>> GetRestApiConnectionsAsync();
     Task<Dictionary<int, Organization>> GetOrganizationByIdAsync(int organizationId);
     Task<Dictionary<int, Organization>> GetOrganizationByDbIdAsync(int dbId);

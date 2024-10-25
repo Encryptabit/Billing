@@ -4,3 +4,8 @@ public class GetBillingHistoryQuery
 {
     
 }
+
+public class GetBillingHistoryQueryHandler
+{
+    
+}

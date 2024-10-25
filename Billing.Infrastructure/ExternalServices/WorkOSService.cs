@@ -14,8 +14,8 @@ public class WorkOSService : IWorkOSService
         _ssoService = ssoService;
     }
 
-    public async Task<WorkOSList<Connection>> FetchWorkOSConnectionsAsync()
+    public async Task<WorkOSList<Connection>> FetchWorkOSConnectionsAsync(CancellationToken cancellationToken = default)
     {
-        return await _ssoService.ListConnections();
+        return await _ssoService.ListConnections(null, cancellationToken);
     }
 }
