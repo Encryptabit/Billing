@@ -2,6 +2,7 @@
 
 public class Organization
 {
-    public int OrganizationId { get; set; }
-    public string SSOOrganizationID { get; set; }
+    public int OrganizationID { get; set; }
+    public string? SSOOrganizationID { get; set; }
+    public bool? Enabled { get; set; }
 }

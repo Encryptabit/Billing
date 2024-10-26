@@ -6,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseWindowsService();
 
-builder.Configuration.AddUserSecrets<Program>();
+// builder.Configuration.AddUserSecrets<Program>();
+builder.Configuration.AddEnvironmentVariables("AutoCrib:");
 
 // Add Services to the container
 builder.Services.AddWindowsService(options => options.ServiceName = "Billing Processor");

@@ -8,6 +8,7 @@ namespace Billing.Infrastructure.Caching;
 public class OrganizationCacheServices(
     IWorkOSService _workOsService,
     IIdentityServerService _identityServerService,
+    IOrganizationsRepository _organizationsRepository,
     IMemoryCache _cache) : IOrganizationCacheServices
 {
     private static int _cacheHits = 0;
@@ -33,12 +34,12 @@ public class OrganizationCacheServices(
         return connections;
     }
 
-    public async Task<List<int>> GetRestApiConnectionsAsync()
+    public async Task<List<int>> GetRestApiConnectionsAsync(bool refreshCache = false, CancellationToken cancellationToken = default)
     {
         if (!_cache.TryGetValue("RestApiConnections", out List<int> restApiConnections))
         {
             Interlocked.Increment(ref _cacheMisses);
-            restApiConnections = await _identityServerService.FetchRestApiConnectionsAsync();
+            restApiConnections = await _identityServerService.FetchRestApiConnectionsAsync(refreshCache, cancellationToken);
             
             _cache.Set("RestApiConnections", restApiConnections, TimeSpan.FromHours(1));
         }
@@ -48,23 +49,32 @@ public class OrganizationCacheServices(
         }
         
         return restApiConnections;
-    }    
-    
-    // Different ways to get an Orgnization for processes later down the road
+    }
+
+    public async Task<Dictionary<string, Domain.Entities.Organization>> GetOrganizationBySsoOrganizationIdAsync(Domain.Entities.Organization organization)
+    {
+        throw new NotImplementedException();
+    }
+
+    // Different ways to get an Organization for processes later down the road
     #region Get Organizations
-    public async Task<Dictionary<int, Organization>> GetOrganizationByIdAsync(int organizationId)
-    {
-        return new Dictionary<int, Organization>();
-    }
 
-    public async Task<Dictionary<int, Organization>> GetOrganizationByDbIdAsync(int dbId)
+    public async Task<List<Billing.Domain.Entities.Organization>> GetAllOrganizationsAsync()
     {
-        return new Dictionary<int, Organization>();
-    }
-
-    public async Task<Dictionary<string, Organization>> GetOrganizationBySSOOrganizationIdAsync(string userId)
-    {
-        return new Dictionary<string, Organization>();
+        if (!_cache.TryGetValue("Organizations", out List<Billing.Domain.Entities.Organization> organizations))
+        {
+            Interlocked.Increment(ref _cacheMisses);
+            organizations = await _organizationsRepository.GetAllAsync();
+            
+            _cache.Set("Organizations", organizations, TimeSpan.FromHours(1));
+        }
+        else
+        {
+            Interlocked.Increment(ref _cacheHits);
+        }
+        
+        return organizations;
+        ;
     }
     #endregion
 }

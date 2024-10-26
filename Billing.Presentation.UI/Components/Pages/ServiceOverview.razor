@@ -1,8 +1,8 @@
 ﻿@page "/service-overview"
-@using Billing.Application.Interfaces
 @using Billing.Application.UseCases.Organizations
 @using WorkOS
 @inject IGetWorkOSConnectionsQueryHandler GetWorkOSConnectionsQueryHandler
+@inject IGetIdentityServerRestApiConnectionsQueryHandler GetIdentityServerRestApiConnectionsQueryHandler 
 @attribute [StreamRendering]
 
 <PageTitle>Service Overview</PageTitle>
@@ -12,57 +12,103 @@
 <h2>Work OS</h2>
 <p>WorkOS Connections Data</p>
 
-@if ( _connections == null)
+@if (_workOsConnections == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>Name</th>
-                <th>Organization ID</th>
-                <th>Type</th>
-                <th>Connection ID</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>State</th>
-            </tr>
+        <tr>
+            <th>Name</th>
+            <th>Organization ID</th>
+            <th>Type</th>
+            <th>Connection ID</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+            <th>State</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var connection in _connections)
-            {
-                <tr>
-                    <td>@connection.Name</td>
-                    <td>@connection.OrganizationId</td>
-                    <td>@connection.Type</td>
-                    <td>@connection.Id</td>
-                    <td>@connection.CreatedAt</td>
-                    <td>@connection.UpdatedAt</td>
-                    <td>@connection.State</td>
-                </tr>
-            }
+        @foreach (var connection in _workOsConnections)
+        {
+            <tr>
+                <td>@connection.Name</td>
+                <td>@connection.OrganizationId</td>
+                <td>@connection.Type</td>
+                <td>@connection.Id</td>
+                <td>@connection.CreatedAt</td>
+                <td>@connection.UpdatedAt</td>
+                <td>@connection.State</td>
+            </tr>
+        }
         </tbody>
     </table>
 
     <button class="btn btn-primary" @onclick="RefreshConnectionsList">Get WorkOS Connections</button>
 }
 
+<h2 style="margin-top: 30px;">Identity Server</h2>
+<p>Rest API Connections Data</p>
+
+@if (_restApiConnections == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>DBID</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var connection in _restApiConnections)
+        {
+            <tr>
+                <td>@connection</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="RefreshConnectionsList">Get Identity Server Connections</button>
+}
+
 @code {
-    private List<Connection> _connections;
+    private List<Connection> _workOsConnections = null;
+
+    private List<int> _restApiConnections = null;
 
     protected override async Task OnInitializedAsync()
     {
         await RefreshConnectionsList();
-
     }
 
     public async Task RefreshConnectionsList()
     {
-        var cancellationToken = new CancellationToken();
-        var command = new GetWorkOSConnectionsQuery(true);
-        var result = await GetWorkOSConnectionsQueryHandler.Handle(command,cancellationToken) ;
-        _connections = result.Data;
+        var workOSTask = GetWorkOSConnectionsQueryHandler.Handle(
+            new GetWorkOSConnectionsQuery(false),
+            new CancellationToken());
+
+        var identityServerTask = GetIdentityServerRestApiConnectionsQueryHandler.Handle(
+            new GetIdentityServerRestApiConnectionsQuery(false),
+            new CancellationToken());
+
+        await Task.WhenAll(workOSTask, identityServerTask);
+        // WorkOS fetch
+        var workOsList = await workOSTask;
+        _workOsConnections = workOsList.Data;
+
+        var restApiList = await identityServerTask;
+        // IdentityServer RestApiClients
+        _restApiConnections = restApiList;
     }
+
 }

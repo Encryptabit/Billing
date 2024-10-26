@@ -1,0 +1,52 @@
+﻿@page "/manage"
+@using Billing.Application.UseCases.Organizations
+@using Billing.Domain.Entities
+@inject IGetOrganizationsQueryHandler GetOrganizationsQueryHandler
+@rendermode InteractiveServer
+
+<PageTitle>Counter</PageTitle>
+
+@if (_organizations.Count == 0)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Organization ID</th>
+            <th>SSO Organization ID</th>
+            <th>SSO Enabled</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var organization in _organizations)
+        {
+            <tr>
+                <td>@organization.OrganizationID</td>
+                <td>@organization.SSOOrganizationID</td>
+                <td>@organization.Enabled</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<button class="btn btn-primary" @onclick="GetAllOrganizationsForView">Get Organizations</button>
+
+@code {
+    private List<Organization> _organizations = new List<Organization>();
+
+    private async Task GetAllOrganizationsForView()
+    {
+        var query = new GetAllOrganizationsQuery();
+
+        _organizations = (List<Organization>)await GetOrganizationsQueryHandler.Handle(
+            query,
+            new CancellationToken());
+    }
+
+}

@@ -16,12 +16,13 @@ public class IdentityServerService: IIdentityServerService
   {
     _configuration = configuration;
     _httpClientFactory = httpClientFactory;
-    _identityClient = new HttpClient();
+    _identityClient = new();
   }
 
-  public async Task<List<int>> FetchRestApiConnectionsAsync()
+  public async Task<List<int>> FetchRestApiConnectionsAsync(bool forceRefresh = false, CancellationToken cancellationToken = default)
   {
-     DiscoveryDocumentResponse discoveryDoc = await _identityClient.GetDiscoveryDocumentAsync();
+     var baseUrl = _configuration["IdentityServer:BaseUrl"];
+     DiscoveryDocumentResponse discoveryDoc = await _identityClient.GetDiscoveryDocumentAsync(baseUrl);
      
      var tokenResponse = await _identityClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
      {
@@ -35,7 +36,7 @@ public class IdentityServerService: IIdentityServerService
      
      client.SetBearerToken(tokenResponse.AccessToken);
 
-     string devUrl = _configuration["IdentityServer:DevUrl"],
+     string devUrl = _configuration["IdentityServer:DevUrl"]+"/client/active/dbids",
          stagingUrl = _configuration["IdentityServer:StagingUrl"];
      
      return await client.GetFromJsonAsync<List<int>>(devUrl);

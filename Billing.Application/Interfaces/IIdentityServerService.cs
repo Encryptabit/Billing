@@ -2,5 +2,5 @@
 
 public interface IIdentityServerService
 {
-    Task<List<int>> FetchRestApiConnectionsAsync(); 
+    Task<List<int>> FetchRestApiConnectionsAsync(bool forceRefresh, CancellationToken cancellationToken); 
 }
