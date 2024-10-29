@@ -17,7 +17,7 @@ public class OrganizationCacheServices(
     
     public async Task<WorkOSList<Connection>> GetWorkOSConnectionsAsync(bool rebuildCache = false, CancellationToken cancellationToken = default)
     {
-        if (!_cache.TryGetValue("SSOConnections", out WorkOSList<Connection> connections) || rebuildCache)
+        if (rebuildCache || !_cache.TryGetValue("SSOConnections", out WorkOSList<Connection> connections))
         {
            Interlocked.Increment(ref _cacheMisses);
 
@@ -34,12 +34,12 @@ public class OrganizationCacheServices(
         return connections;
     }
 
-    public async Task<List<int>> GetRestApiConnectionsAsync(bool refreshCache = false, CancellationToken cancellationToken = default)
+    public async Task<List<int>> GetRestApiConnectionsAsync(bool rebuildCache = false, CancellationToken cancellationToken = default)
     {
-        if (!_cache.TryGetValue("RestApiConnections", out List<int> restApiConnections))
+        if (rebuildCache || !_cache.TryGetValue("RestApiConnections", out List<int> restApiConnections))
         {
             Interlocked.Increment(ref _cacheMisses);
-            restApiConnections = await _identityServerService.FetchRestApiConnectionsAsync(refreshCache, cancellationToken);
+            restApiConnections = await _identityServerService.FetchRestApiConnectionsAsync(rebuildCache, cancellationToken);
             
             _cache.Set("RestApiConnections", restApiConnections, TimeSpan.FromHours(1));
         }
@@ -51,7 +51,7 @@ public class OrganizationCacheServices(
         return restApiConnections;
     }
 
-    public async Task<Dictionary<string, Domain.Entities.Organization>> GetOrganizationBySsoOrganizationIdAsync(Domain.Entities.Organization organization)
+    public async Task<Domain.Entities.Organization> GetOrganizationBySsoOrganizationIdAsync(Domain.Entities.Organization organization)
     {
         throw new NotImplementedException();
     }

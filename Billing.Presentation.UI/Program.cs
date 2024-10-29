@@ -1,6 +1,8 @@
 using Billing.Application;
 using Billing.Infrastructure;
 using Billing.Presentation.UI.Components;
+using Hangfire;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +29,17 @@ builder.WebHost.UseKestrel((context, serverOptions) =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddFluentUIComponents();
+builder.Services.AddDataGridEntityFrameworkAdapter();
+
 var app = builder.Build();
+
+//Hangfire UI
+app.UseHangfireDashboard("/jobs", new DashboardOptions()
+{
+    AppPath = null
+    
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

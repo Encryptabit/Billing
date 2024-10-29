@@ -1,30 +1,43 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Billing Portal</a>
-    </div>
+﻿@rendermode InteractiveServer
+
+
+<div class="navmenu">
+        <FluentAppBar>
+            <FluentAppBarItem Href="" Match="NavLinkMatch.All"
+                              IconRest="HomeIcon()"
+                              IconActive="HomeIcon(active: true)"
+                              Text="Home"/>
+            <FluentAppBarItem Href="manage"
+                              IconRest="ManageIcon()"
+                              IconActive="ManageIcon(active: true)"
+                              Text="Manage"/>
+            <FluentAppBarItem Href="external"
+                              IconRest="ExternalIcon()"
+                              IconActive="ExternalIcon(active: true)"
+                              Text="External APIs"/>
+            <FluentAppBarItem Href="metrics"
+                              IconRest="MetricsIcon()"
+                              IconActive="MetricsIcon(active: true)"
+                              Text="Polling Metrics"/>
+        </FluentAppBar>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+@code {
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>Billing
-            </NavLink>
-        </div>
+    private static Icon HomeIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.Home()
+            : new Icons.Regular.Size24.Home();
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="manage">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span>Manage SSO 
-            </NavLink>
-        </div>
+    private static Icon ManageIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.Add()
+            : new Icons.Regular.Size24.Add();
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="service-overview">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Service Overview 
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    private static Icon ExternalIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.HeartCircleHint()
+            : new Icons.Regular.Size24.HeartCircleHint();
 
+    private static Icon MetricsIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.ChartMultiple()
+            : new Icons.Regular.Size24.ChartMultiple();
+
+}

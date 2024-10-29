@@ -6,7 +6,7 @@ namespace Billing.Application.UseCases.Organizations;
 
 // The Queries
 public record GetAllOrganizationsQuery : IRequest<IEnumerable<Organization>>;
-public record GetOrganizationBySsoOrganizationIdQuery(Organization Organization) :  IRequest<Dictionary<string, Organization>>;
+public record GetOrganizationBySsoOrganizationIdQuery(Organization Organization) :  IRequest<Organization>;
 
 // The Interfaces for DI
 public interface IGetOrganizationsQueryHandler
@@ -17,7 +17,7 @@ public interface IGetOrganizationsQueryHandler
 
 public interface IGetOrganizationBySsoOrganizationIdQueryHandler
 {
-    Task<Dictionary<string,Organization>> Handle(GetOrganizationBySsoOrganizationIdQuery request, CancellationToken cancellationToken);
+    Task<Organization> Handle(GetOrganizationBySsoOrganizationIdQuery request, CancellationToken cancellationToken);
 }
 
 // The Handlers for the Queries
@@ -36,10 +36,10 @@ public class GetOrganizationsQueryHandler(
 public class GetOrganizationBySsoOrganizationIdQueryHandler(
     IOrganizationCacheServices organizationCacheServices) : 
     IRequestHandler<GetOrganizationBySsoOrganizationIdQuery, 
-        Dictionary<string,Organization>>,
+        Organization>,
     IGetOrganizationBySsoOrganizationIdQueryHandler
 {
-    public async Task<Dictionary<string,Organization>> Handle(GetOrganizationBySsoOrganizationIdQuery request, CancellationToken cancellationToken)
+    public async Task<Organization> Handle(GetOrganizationBySsoOrganizationIdQuery request, CancellationToken cancellationToken)
     {
         return await organizationCacheServices.GetOrganizationBySsoOrganizationIdAsync(request.Organization);
     }

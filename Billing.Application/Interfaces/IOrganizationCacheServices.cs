@@ -8,6 +8,6 @@ public interface IOrganizationCacheServices
     Task<List<int>> GetRestApiConnectionsAsync(bool rebuildCache, CancellationToken cancellationToken);
     // Task<Dictionary<int, Organization>> GetOrganizationByIdAsync(int organizationId);
     // Task<Dictionary<int, Organization>> GetOrganizationByDbIdAsync(int dbId);
-    Task<Dictionary<string, Domain.Entities.Organization>> GetOrganizationBySsoOrganizationIdAsync(Domain.Entities.Organization organization);
+    Task<Domain.Entities.Organization> GetOrganizationBySsoOrganizationIdAsync(Domain.Entities.Organization organization);
     Task<List<Domain.Entities.Organization>> GetAllOrganizationsAsync();
 }

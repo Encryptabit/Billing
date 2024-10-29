@@ -1,114 +1,111 @@
-﻿@page "/service-overview"
+﻿@page "/external"
 @using Billing.Application.UseCases.Organizations
 @using WorkOS
 @inject IGetWorkOSConnectionsQueryHandler GetWorkOSConnectionsQueryHandler
 @inject IGetIdentityServerRestApiConnectionsQueryHandler GetIdentityServerRestApiConnectionsQueryHandler 
+@rendermode InteractiveServer
 @attribute [StreamRendering]
 
 <PageTitle>Service Overview</PageTitle>
+<FluentGrid>
+    <FluentGridItem xs="12">
+        <h1>External Services</h1>
+        <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshConnectionsList(true); }">Rebuild Cache</FluentButton>
+    </FluentGridItem>
+    <FluentGridItem xs="12" md="6" lg="4">
+        <FluentCard MinimalStyle="true">
+            <h4>WorkOS Connections</h4>
+            <FluentDataGrid @ref="_grid" AutoFit="true" Items="@_workOsConnections">
+                <ChildContent>
+                    <PropertyColumn Property="@(o => o.OrganizationId)" Sortable="true"/>
+                    <PropertyColumn Property="@(o => o.Name)" Sortable="true"/>
+                    <PropertyColumn Property="@(o => o.State)" Sortable="true"/>
+                </ChildContent>
+                <EmptyContent>
+                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                        Loading...<br/>
+                        <FluentProgress Width="239px"/>
+                    </FluentStack>
+                </EmptyContent>
+                <LoadingContent>
+                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                        Loading...<br/>
+                        <FluentProgress Width="239px"/>
+                    </FluentStack>
+                </LoadingContent>
+            </FluentDataGrid>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="12" md="6" lg="4">
+        <FluentCard MinimalStyle="true">
+            <h4>Rest API Connections</h4>
+            <FluentDataGrid @ref="_identityGrid" AutoFit="true" Items="@_restApiConnections">
+                <ChildContent>
+                    <PropertyColumn title="DBID" Property="@(restApiConnection => restApiConnection)" Sortable="true"/>
+                </ChildContent>
+                <EmptyContent>
+                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                        Loading...<br/>
+                        <FluentProgress Width="239px"/>
+                    </FluentStack>
+                </EmptyContent>
+                <LoadingContent>
+                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                        Loading...<br/>
+                        <FluentProgress Width="239px"/>
+                    </FluentStack>
+                </LoadingContent>
+            </FluentDataGrid>
+        </FluentCard>
+    </FluentGridItem>
+</FluentGrid>
 
-<h1>External Services</h1>
-
-<h2>Work OS</h2>
-<p>WorkOS Connections Data</p>
-
-@if (_workOsConnections == null)
-{
-    <p>
-        <em>Loading...</em>
-    </p>
-}
-else
-{
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Organization ID</th>
-            <th>Type</th>
-            <th>Connection ID</th>
-            <th>Created At</th>
-            <th>Updated At</th>
-            <th>State</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var connection in _workOsConnections)
-        {
-            <tr>
-                <td>@connection.Name</td>
-                <td>@connection.OrganizationId</td>
-                <td>@connection.Type</td>
-                <td>@connection.Id</td>
-                <td>@connection.CreatedAt</td>
-                <td>@connection.UpdatedAt</td>
-                <td>@connection.State</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-
-    <button class="btn btn-primary" @onclick="RefreshConnectionsList">Get WorkOS Connections</button>
-}
-
-<h2 style="margin-top: 30px;">Identity Server</h2>
-<p>Rest API Connections Data</p>
-
-@if (_restApiConnections == null)
-{
-    <p>
-        <em>Loading...</em>
-    </p>
-}
-else
-{
-    <table class="table">
-        <thead>
-        <tr>
-            <th>DBID</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var connection in _restApiConnections)
-        {
-            <tr>
-                <td>@connection</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-
-    <button class="btn btn-primary" @onclick="RefreshConnectionsList">Get Identity Server Connections</button>
-}
 
 @code {
-    private List<Connection> _workOsConnections = null;
+    private IQueryable<Connection> _workOsConnections = null;
 
-    private List<int> _restApiConnections = null;
+    private IQueryable<int> _restApiConnections = null;
+
+    FluentDataGrid<Connection>? _grid;
+    FluentDataGrid<int>? _identityGrid;
 
     protected override async Task OnInitializedAsync()
     {
+        _grid?.SetLoadingState(true);
+        _grid?.SetLoadingState(true);
         await RefreshConnectionsList();
+        _grid?.SetLoadingState(false);
+        _identityGrid?.SetLoadingState(false);
     }
 
-    public async Task RefreshConnectionsList()
+    public async Task RefreshConnectionsList(bool rebuildCache = false)
     {
+        if (rebuildCache)
+        {
+            _workOsConnections = null;
+            _restApiConnections = null;
+            _grid?.SetLoadingState(true);
+            _identityGrid?.SetLoadingState(true);
+        }
+
         var workOSTask = GetWorkOSConnectionsQueryHandler.Handle(
-            new GetWorkOSConnectionsQuery(false),
+            new GetWorkOSConnectionsQuery(rebuildCache),
             new CancellationToken());
 
         var identityServerTask = GetIdentityServerRestApiConnectionsQueryHandler.Handle(
-            new GetIdentityServerRestApiConnectionsQuery(false),
+            new GetIdentityServerRestApiConnectionsQuery(rebuildCache),
             new CancellationToken());
 
         await Task.WhenAll(workOSTask, identityServerTask);
         // WorkOS fetch
         var workOsList = await workOSTask;
-        _workOsConnections = workOsList.Data;
+        _workOsConnections = workOsList.Data.AsQueryable();
 
         var restApiList = await identityServerTask;
         // IdentityServer RestApiClients
-        _restApiConnections = restApiList;
+        _restApiConnections = restApiList.AsQueryable();
+        _grid?.SetLoadingState(false);
+        _identityGrid?.SetLoadingState(false);
     }
 
 }
