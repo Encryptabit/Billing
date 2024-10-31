@@ -1,6 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
-<FluentLayout>
+@*
+ * FluentUI stuff
+ *@
+<FluentToastProvider />
+<FluentDialogProvider />
+<FluentTooltipProvider />
+<FluentMessageBarProvider />
+<FluentMenuProvider />
+
+<FluentLayout Style="overflow-y: hidden;">
     <FluentStack Class="main" Style="height:100vh;" Width="100%">
         <NavMenu/>
         <FluentBodyContent Class="body-content">
@@ -10,12 +19,3 @@
         </FluentBodyContent>
     </FluentStack>
 </FluentLayout>
-
-@*
- * FluentUI stuff
- *@
-<FluentToastProvider/>
-<FluentDialogProvider/>
-<FluentTooltipProvider/>
-<FluentMessageBarProvider/>
-<FluentMenuProvider/>

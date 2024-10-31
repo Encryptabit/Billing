@@ -41,6 +41,7 @@
             <h4>Rest API Connections</h4>
             <FluentDataGrid @ref="_identityGrid" AutoFit="true" Items="@_restApiConnections">
                 <ChildContent>
+                    @*<TemplateColumn Title="DBID" property=""*@
                     <PropertyColumn title="DBID" Property="@(restApiConnection => restApiConnection)" Sortable="true"/>
                 </ChildContent>
                 <EmptyContent>
