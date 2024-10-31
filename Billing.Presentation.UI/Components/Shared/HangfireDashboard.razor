@@ -1,3 +1,3 @@
 ﻿<div class="hangfire-dashboard-container">
-    <iframe src="/jobs" width="100%" height="100%"></iframe>
+    <iframe src="/jobs" width="100%" height="500px" sandbox="allow-scripts allow-same-origin" onload="console.log(this.style.height); this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px'; console.log(this.style.height); "></iframe>
 </div>

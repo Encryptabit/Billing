@@ -1,7 +1,9 @@
 using Billing.Application;
+using Billing.Application.Interfaces;
 using Billing.Infrastructure;
 using Billing.Presentation.UI.Components;
 using Hangfire;
+using Hangfire.Dashboard;
 using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +39,8 @@ var app = builder.Build();
 //Hangfire UI
 app.UseHangfireDashboard("/jobs", new DashboardOptions()
 {
-    AppPath = null
+    AppPath = null,
+    Authorization = new[] { new DashboardAuthFilter()}
     
 });
 
