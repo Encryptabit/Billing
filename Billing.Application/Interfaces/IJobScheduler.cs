@@ -5,5 +5,5 @@ namespace Billing.Application.Interfaces;
 public interface IJobScheduler
 {
     void ScheduleRecurringJob<T>(string jobId, Expression<Action<T>> methodCall, string cronExpression);
-    void ScheduleDelatedJob<T>(string jobId, Expression<Action<T>> methodCall, TimeSpan delay);  
+    void ScheduleDelayedJob<T>(string jobId, Expression<Action<T>> methodCall, TimeSpan delay);  
 }

@@ -6,7 +6,7 @@ namespace Billing.Application.UseCases.Organizations;
 
 // The Queries
 public record GetAllOrganizationsQuery : IRequest<IEnumerable<Organization>>;
-public record GetOrganizationBySsoOrganizationIdQuery(Organization Organization) :  IRequest<Organization>;
+public record GetSpecificOrganization(Organization Organization) :  IRequest<Organization>;
 
 // The Interfaces for DI
 public interface IGetOrganizationsQueryHandler
@@ -17,7 +17,7 @@ public interface IGetOrganizationsQueryHandler
 
 public interface IGetOrganizationBySsoOrganizationIdQueryHandler
 {
-    Task<Organization> Handle(GetOrganizationBySsoOrganizationIdQuery request, CancellationToken cancellationToken);
+    Task<Organization> Handle(GetSpecificOrganization request, CancellationToken cancellationToken);
 }
 
 // The Handlers for the Queries
@@ -33,14 +33,18 @@ public class GetOrganizationsQueryHandler(
     }
 }
 
-public class GetOrganizationBySsoOrganizationIdQueryHandler(
+/*
+ * This can bse used to get a specific Distributor or EndUser it's not relegated to just "Organization"
+ * GetDistribitor and GetEndUser will extend this function.
+ */
+public class GetSpecificOrganizationQueryHandler(
     IOrganizationCacheServices organizationCacheServices) : 
-    IRequestHandler<GetOrganizationBySsoOrganizationIdQuery, 
+    IRequestHandler<GetSpecificOrganization, 
         Organization>,
     IGetOrganizationBySsoOrganizationIdQueryHandler
 {
-    public async Task<Organization> Handle(GetOrganizationBySsoOrganizationIdQuery request, CancellationToken cancellationToken)
+    public async Task<Organization> Handle(GetSpecificOrganization request, CancellationToken cancellationToken)
     {
-        return await organizationCacheServices.GetOrganizationBySsoOrganizationIdAsync(request.Organization);
+        return await organizationCacheServices.GetSpecificOrganizationAsync(request.Organization);
     }
 }

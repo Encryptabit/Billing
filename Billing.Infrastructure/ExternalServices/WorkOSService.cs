@@ -4,7 +4,7 @@ using WorkOS;
 
 namespace Billing.Infrastructure.ExternalServices;
 
-public class WorkOSService : IWorkOSService
+internal class WorkOSService : IWorkOSService
 {
     private readonly SSOService _ssoService; 
     

@@ -4,18 +4,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Billing.Infrastructure.Persistence;
 
-public class OrganizationsRepository(
-    AppDbContext context) : IOrganizationsRepository
+internal class OrganizationsRepository(
+    IDbContextFactory<AppDbContext> _factory) : IOrganizationsRepository
 {
     public async Task<List<Organization>> GetAllAsync()
     {
-        return await context.Organizations.AsQueryable().ToListAsync();
-        
-        //return await Task.FromResult(context.Organizations.ToList());
+        using (var ctx = _factory.CreateDbContext())
+        {
+            return await ctx.Organizations.AsQueryable().ToListAsync();
+        }
     }
 
-    public async Task<Organization> GetBySsoOrganizationIdAsync(Organization organization)
+    public async Task<Organization> GetSpecificOrganizationAsync(Organization organization)
     {
-        return await context.Organizations.FirstOrDefaultAsync(x => x.SSOOrganizationID == organization.SSOOrganizationID);
+        
+        using (var ctx = _factory.CreateDbContext())
+        {
+            return await ctx.Organizations.FirstOrDefaultAsync(x =>
+                        x.SSOOrganizationID == organization.SSOOrganizationID);
+        }
+        
     }
 }

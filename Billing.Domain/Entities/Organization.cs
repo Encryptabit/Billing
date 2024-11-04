@@ -1,6 +1,6 @@
 ﻿namespace Billing.Domain.Entities;
 
-public class Organization
+public abstract class Organization
 {
     public int OrganizationID { get; set; }
     public string? SSOOrganizationID { get; set; }

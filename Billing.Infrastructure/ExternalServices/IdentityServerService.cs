@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Billing.Infrastructure.ExternalServices;
 
-public class IdentityServerService: IIdentityServerService
+internal class IdentityServerService: IIdentityServerService
 {
 
   private readonly IConfiguration _configuration;

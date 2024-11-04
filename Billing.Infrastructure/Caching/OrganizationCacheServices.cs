@@ -1,11 +1,12 @@
 ﻿using Billing.Application.Interfaces;
+using Billing.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using WorkOS;
 
 namespace Billing.Infrastructure.Caching;
 
 // TODO: Implement the Repository behavior in here as well
-public class OrganizationCacheServices(
+internal class OrganizationCacheServices(
     IWorkOSService _workOsService,
     IIdentityServerService _identityServerService,
     IOrganizationsRepository _organizationsRepository,
@@ -51,7 +52,7 @@ public class OrganizationCacheServices(
         return restApiConnections;
     }
 
-    public async Task<Domain.Entities.Organization> GetOrganizationBySsoOrganizationIdAsync(Domain.Entities.Organization organization)
+    public async Task<Domain.Entities.Organization> GetSpecificOrganizationAsync(Domain.Entities.Organization organization)
     {
         throw new NotImplementedException();
     }
@@ -76,5 +77,26 @@ public class OrganizationCacheServices(
         return organizations;
         ;
     }
+
+    public Task<List<EndUser>> GetAllEndUsersAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<EndUser> GetSpecificEndUserAsync(EndUser endUser)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<Distributor>> GetAllDistributorsAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Distributor> GetSpecificDistributorAsync(Distributor distributor)
+    {
+        throw new NotImplementedException();
+    }
+
     #endregion
 }
