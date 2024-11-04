@@ -1,82 +1,300 @@
 ﻿@page "/external"
 @using Billing.Application.UseCases.Organizations
+@using Billing.Domain.Entities.Dto
+@using Billing.Infrastructure.Persistence
 @using WorkOS
 @inject IGetWorkOSConnectionsQueryHandler GetWorkOSConnectionsQueryHandler
-@inject IGetIdentityServerRestApiConnectionsQueryHandler GetIdentityServerRestApiConnectionsQueryHandler 
+@inject IGetIdentityServerRestApiConnectionsQueryHandler GetIdentityServerRestApiConnectionsQueryHandler
+@inject IGetOrganizationsQueryHandler GetOrganizationsQueryHandler
+@inject IGetEndUsersQueryHandler GetEndUsersQueryHandler
 @rendermode InteractiveServer
 @attribute [StreamRendering]
 
 <PageTitle>Service Overview</PageTitle>
-<FluentGrid>
-    <FluentGridItem xs="12">
-        <h1>External Services</h1>
-        <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshConnectionsList(true); }">Rebuild Cache</FluentButton>
-    </FluentGridItem>
-    <FluentGridItem xs="12" md="6" lg="4">
-        <FluentCard MinimalStyle="true">
-            <h4>WorkOS Connections</h4>
-            <FluentDataGrid @ref="_grid" AutoFit="true" Items="@_workOsConnections">
-                <ChildContent>
-                    <PropertyColumn Property="@(o => o.OrganizationId)" Sortable="true"/>
-                    <PropertyColumn Property="@(o => o.Name)" Sortable="true"/>
-                    <PropertyColumn Property="@(o => o.State)" Sortable="true"/>
-                </ChildContent>
-                <EmptyContent>
-                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                        Loading...<br/>
-                        <FluentProgress Width="239px"/>
-                    </FluentStack>
-                </EmptyContent>
-                <LoadingContent>
-                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                        Loading...<br/>
-                        <FluentProgress Width="239px"/>
-                    </FluentStack>
-                </LoadingContent>
-            </FluentDataGrid>
-        </FluentCard>
-    </FluentGridItem>
-    <FluentGridItem xs="12" md="6" lg="4">
-        <FluentCard MinimalStyle="true">
-            <h4>Rest API Connections</h4>
-            <FluentDataGrid @ref="_identityGrid" AutoFit="true" Items="@_restApiConnections">
-                <ChildContent>
-                    @*<TemplateColumn Title="DBID" property=""*@
-                    <PropertyColumn title="DBID" Property="@(restApiConnection => restApiConnection)" Sortable="true"/>
-                </ChildContent>
-                <EmptyContent>
-                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                        Loading...<br/>
-                        <FluentProgress Width="239px"/>
-                    </FluentStack>
-                </EmptyContent>
-                <LoadingContent>
-                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                        Loading...<br/>
-                        <FluentProgress Width="239px"/>
-                    </FluentStack>
-                </LoadingContent>
-            </FluentDataGrid>
-        </FluentCard>
-    </FluentGridItem>
+<FluentGrid Justify="JustifyContent.Center">
+<FluentGridItem xs="12">
+    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+        <h2>External API Sources</h2>
+        <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshConnectionsList(true); }">Query APIs and Rebuild Cache</FluentButton>
+    </FluentStack>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>WorkOS Connections</h4>
+        <FluentDataGrid @ref="_grid" AutoFit="true" Items="@_workOsConnections">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.OrganizationId)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Name)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.State)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="2">
+    <FluentCard MinimalStyle="true">
+        <h4>Rest API Connections</h4>
+        <FluentDataGrid @ref="_identityGrid" AutoFit="true" Items="@_restApiConnections">
+            <ChildContent>
+                @*<TemplateColumn Title="DBID" property=""*@
+                <PropertyColumn title="DBID" Property="@(restApiConnection => restApiConnection)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+    </FluentCard>
+</FluentGridItem>
+
+<FluentGridItem xs="12">
+    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+        <FluentDivider Style="width: 100%;" Role="DividerRole.Presentation"></FluentDivider>
+        <h2>Databases</h2>
+        <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshDatabaseInformation(true); }">Query Databases and Rebuild Cache</FluentButton>
+    </FluentStack>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>Organizations</h4>
+        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>Organizations</h4>
+        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>Organizations</h4>
+        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>Organizations</h4>
+        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>Organizations</h4>
+        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>End-Users Database</h4>
+        <FluentDataGrid Pagination="_endUserPagination" @ref="_endUserDbGrid" Items="@_endUserDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Name)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentPaginator State="_endUserPagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent"
+                     OnClick="async () => { var results = await GetAllEndUsersAsync(true); _endUserDtos = results.AsQueryable(); _endUserDbGrid.SetLoadingState(false); }">Get All End-Users</FluentButton>
+
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>Organizations</h4>
+        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentButton Appearance="Appearance.Accent"
+                      OnClick="async () => { var results = await GetAllOrganizationsAsync(true); _organizationDtos = results.AsQueryable(); _orgDbGrid.SetLoadingState(false); }">
+            Get All Organizations
+        </FluentButton>
+    </FluentCard>
+</FluentGridItem>
 </FluentGrid>
 
 
 @code {
-    private IQueryable<Connection> _workOsConnections = null;
 
-    private IQueryable<int> _restApiConnections = null;
+    // APIs
+    private IQueryable<Connection>? _workOsConnections;
+    private IQueryable<int>? _restApiConnections;
 
+    // Databases
+    private IQueryable<BillingDto> _billingDtos;
+    private IQueryable<DatabaseDto> _databaseDtos;
+    private IQueryable<DistributorEndUserDto> _distributorEndUserDtos;
+    private IQueryable<DistributorDto> _distributorDtos;
+    private IQueryable<EndUserDatabaseDto> _endUserDatabaseDtos;
+    private IQueryable<EndUserDto> _endUserDtos;
+    private IQueryable<OrganizationDto> _organizationDtos;
+
+
+    // Grids
     FluentDataGrid<Connection>? _grid;
     FluentDataGrid<int>? _identityGrid;
+    FluentDataGrid<BillingDto>? _billingDbGrid;
+    FluentDataGrid<DatabaseDto>? _databaseDbGrid;
+    FluentDataGrid<DistributorEndUserDto>? _distributorEndUserDbGrid;
+    FluentDataGrid<DistributorDto>? _distributorDbGrid;
+    FluentDataGrid<EndUserDatabaseDto>? _endUserDatabseDbGrid;
+    FluentDataGrid<EndUserDto>? _endUserDbGrid;
+    PaginationState _endUserPagination = new() { ItemsPerPage = 10 };
+    FluentDataGrid<OrganizationDto>? _orgDbGrid;
 
     protected override async Task OnInitializedAsync()
     {
         _grid?.SetLoadingState(true);
-        _grid?.SetLoadingState(true);
-        await RefreshConnectionsList();
+        _identityGrid?.SetLoadingState(true);
+        _orgDbGrid?.SetLoadingState(true);
+        RefreshConnectionsList();
         _grid?.SetLoadingState(false);
         _identityGrid?.SetLoadingState(false);
+        RefreshDatabaseInformation();
+        _orgDbGrid?.SetLoadingState(false);
     }
 
     public async Task RefreshConnectionsList(bool rebuildCache = false)
@@ -89,24 +307,118 @@
             _identityGrid?.SetLoadingState(true);
         }
 
-        var workOSTask = GetWorkOSConnectionsQueryHandler.Handle(
+        Task<WorkOSList<Connection>> workOSTask = GetWorkOSConnectionsQueryHandler.Handle(
             new GetWorkOSConnectionsQuery(rebuildCache),
             new CancellationToken());
 
-        var identityServerTask = GetIdentityServerRestApiConnectionsQueryHandler.Handle(
+        Task<List<int>> identityServerTask = GetIdentityServerRestApiConnectionsQueryHandler.Handle(
             new GetIdentityServerRestApiConnectionsQuery(rebuildCache),
             new CancellationToken());
 
-        await Task.WhenAll(workOSTask, identityServerTask);
-        // WorkOS fetch
-        var workOsList = await workOSTask;
-        _workOsConnections = workOsList.Data.AsQueryable();
+        List<Task> tasks = new List<Task>()
+        {
+            workOSTask,
+            identityServerTask
+        };
 
-        var restApiList = await identityServerTask;
-        // IdentityServer RestApiClients
-        _restApiConnections = restApiList.AsQueryable();
-        _grid?.SetLoadingState(false);
-        _identityGrid?.SetLoadingState(false);
+        WorkOSList<Connection> workOsList = new WorkOSList<Connection>();
+        List<int> restApiList = new List<int>();
+
+        while (tasks.Any())
+        {
+            var result = await Task.WhenAny(tasks);
+
+            if (result == workOSTask)
+            {
+                workOsList = await workOSTask;
+                _workOsConnections = workOsList.Data.AsQueryable();
+                _grid?.SetLoadingState(false);
+                StateHasChanged();
+            }
+
+            if (result == identityServerTask)
+            {
+                restApiList = await identityServerTask;
+                _restApiConnections = restApiList.AsQueryable();
+                _identityGrid?.SetLoadingState(false);
+                StateHasChanged();
+            }
+
+            tasks.Remove(result);
+        }
+    }
+
+
+    private Task<IEnumerable<OrganizationDto>> GetAllOrganizationsAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllOrganizationsQuery(rebuildCache);
+
+        if (rebuildCache)
+        {
+            _orgDbGrid?.SetLoadingState(true);
+            _organizationDtos = null;
+        }
+
+        return GetOrganizationsQueryHandler.Handle(
+            query,
+            new CancellationToken());
+    }
+
+    private Task<IEnumerable<EndUserDto>> GetAllEndUsersAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllEndUsersQuery(rebuildCache);
+        
+        if (rebuildCache)
+        {
+            _endUserDtos = null;
+            _endUserDbGrid?.SetLoadingState(true);
+        }
+
+        return GetEndUsersQueryHandler.Handle(
+            query,
+            new CancellationToken());
+    }
+
+
+    public async Task RefreshDatabaseInformation(bool rebuildCache = false)
+    {
+        Task<IEnumerable<EndUserDto>> euTask = GetAllEndUsersAsync(rebuildCache);
+        Task<IEnumerable<OrganizationDto>> oTask = GetAllOrganizationsAsync(rebuildCache);
+
+        List<Task> tasks = new List<Task>()
+        {
+            euTask,
+            oTask
+        };
+
+        IEnumerable<EndUserDto> euList = new List<EndUserDto>();
+        IEnumerable<OrganizationDto> oList = new List<OrganizationDto>();
+
+        while (tasks.Any())
+        {
+            var result = await Task.WhenAny(tasks);
+
+            switch (result)
+            {
+                case var value when value == euTask:
+                    euList = await euTask;
+                    _endUserDtos = euList.AsQueryable();
+                    _endUserDbGrid?.SetLoadingState(false);
+                    StateHasChanged();
+                    break;
+                case var value when value == oTask:
+                    oList = await oTask;
+                    _organizationDtos = oList.AsQueryable();
+                    _orgDbGrid?.SetLoadingState(false);
+                    StateHasChanged();
+                    break;
+                default:
+                    continue;
+            }
+
+
+            tasks.Remove(result);
+        }
     }
 
 }

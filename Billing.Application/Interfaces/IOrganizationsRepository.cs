@@ -1,9 +1,9 @@
-﻿using Billing.Domain.Entities;
+﻿using Billing.Domain.Entities.Dto;
 
 namespace Billing.Application.Interfaces;
 
 public interface IOrganizationsRepository
 {
-    Task<List<Organization>> GetAllAsync();
-    Task<Organization> GetSpecificOrganizationAsync(Organization organization);
+    Task<List<OrganizationDto>> GetAllAsync();
+    Task<OrganizationDto> GetSpecificOrganizationAsync(OrganizationDto organization);
 }

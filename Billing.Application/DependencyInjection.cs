@@ -11,6 +11,7 @@ public static class DependencyInjection
        services.AddScoped<IGetWorkOSConnectionsQueryHandler, GetWorkOSConnectionsQueryHandler>();
        services.AddScoped<IGetIdentityServerRestApiConnectionsQueryHandler, GetIdentityServerRestApiConnectionsQueryHandler>();
        services.AddScoped<IGetOrganizationsQueryHandler, GetOrganizationsQueryHandler>();
+       services.AddScoped<IGetEndUsersQueryHandler, GetEndUsersQueryHandler>();
        //services.AddMediatR(Assembly.GetExecutingAssembly());
        
        return services;

@@ -20,9 +20,11 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("AutoCribCRM");
         services.AddDbContextFactory<AppDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
         services.AddScoped<IBillingRepository, BillingRepository>();
-        services.AddScoped<IDistributorsRepository,DistributorsRepository>();
-        services.AddScoped<IBillingRepository, BillingRepository>();
         services.AddScoped<IDatabasesRepository, DatabasesRepository>();
+        services.AddScoped<IDistributorEndUserRepository, DistributorEndUserRepository>();
+        services.AddScoped<IDistributorsRepository,DistributorsRepository>();
+        services.AddScoped<IEndUserDatabaseRepository, EndUserDatabaseRepository>();
+        services.AddScoped<IEndUsersRepository, EndUsersRepository>();
         services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
         services.AddHttpClient();
         

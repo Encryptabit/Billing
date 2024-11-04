@@ -1,4 +1,6 @@
-﻿namespace Billing.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Billing.Domain.Entities;
 
 public class Database(
     int dbId,
@@ -14,6 +16,7 @@ public class Database(
     public int DbId { get; set; } = dbId;
     public string Company { get; set; } = company;
     public bool NewAuthentication { get; set; } = newAuthentication;
+    [NotMapped]
     public Bill ActiveBill { get; set; } = bill;
     public Billing BillingHistory { get; set; } = billHistory;
     public bool Vmi { get; set; } = vmi;

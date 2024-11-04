@@ -1,5 +1,6 @@
 ﻿using Billing.Application.Interfaces;
 using Billing.Domain.Entities;
+using Billing.Domain.Entities.Dto;
 using Microsoft.EntityFrameworkCore;
 
 namespace Billing.Infrastructure.Persistence;
@@ -7,7 +8,7 @@ namespace Billing.Infrastructure.Persistence;
 internal class OrganizationsRepository(
     IDbContextFactory<AppDbContext> _factory) : IOrganizationsRepository
 {
-    public async Task<List<Organization>> GetAllAsync()
+    public async Task<List<OrganizationDto>> GetAllAsync()
     {
         using (var ctx = _factory.CreateDbContext())
         {
@@ -15,7 +16,7 @@ internal class OrganizationsRepository(
         }
     }
 
-    public async Task<Organization> GetSpecificOrganizationAsync(Organization organization)
+    public async Task<OrganizationDto> GetSpecificOrganizationAsync(OrganizationDto organization)
     {
         
         using (var ctx = _factory.CreateDbContext())

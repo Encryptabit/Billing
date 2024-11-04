@@ -1,35 +1,14 @@
 ﻿@page "/manage"
 @using Billing.Application.UseCases.Organizations
 @using Billing.Domain.Entities
+@using Billing.Domain.Entities.Dto
 @inject IGetOrganizationsQueryHandler GetOrganizationsQueryHandler
 @rendermode InteractiveServer
 
 <PageTitle>Manage</PageTitle>
 
-<FluentDataGrid Items="@_organizations">
-    <PropertyColumn Property="@(o => o.Enabled)" Sortable="true" />
-    <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true" />
-    <PropertyColumn Property="@(o => o.SSOOrganizationID)"  Sortable="true" />
-</FluentDataGrid>
-<FluentButton OnClick="GetAllOrganizationsForView">Get All Organizations</FluentButton>
 
 @code {
-    private IQueryable<Organization> _organizations ;
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        await GetAllOrganizationsForView();
-    }
 
-    private async Task GetAllOrganizationsForView()
-    {
-        var query = new GetAllOrganizationsQuery();
-
-        var result = await GetOrganizationsQueryHandler.Handle(
-            query,
-            new CancellationToken());
-
-        _organizations = result.AsQueryable();
-    }
 
 }

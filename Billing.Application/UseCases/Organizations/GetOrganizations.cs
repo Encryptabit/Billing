@@ -1,35 +1,35 @@
 ﻿using Billing.Application.Interfaces;
 using Billing.Domain.Entities;
+using Billing.Domain.Entities.Dto;
 using MediatR;
 
 namespace Billing.Application.UseCases.Organizations;
 
 // The Queries
-public record GetAllOrganizationsQuery : IRequest<IEnumerable<Organization>>;
-public record GetSpecificOrganization(Organization Organization) :  IRequest<Organization>;
+public record GetAllOrganizationsQuery(bool rebuildCache) : IRequest<IEnumerable<OrganizationDto>>;
+public record GetSpecificOrganization(OrganizationDto Organization) :  IRequest<OrganizationDto>;
 
 // The Interfaces for DI
 public interface IGetOrganizationsQueryHandler
 {
-    Task<IEnumerable<Organization>> Handle(GetAllOrganizationsQuery request, CancellationToken cancellationToken);
+    Task<IEnumerable<OrganizationDto>> Handle(GetAllOrganizationsQuery request, CancellationToken cancellationToken);
 }
 
-
-public interface IGetOrganizationBySsoOrganizationIdQueryHandler
+public interface IGetSpecificOrganizationQueryHandler
 {
-    Task<Organization> Handle(GetSpecificOrganization request, CancellationToken cancellationToken);
+    Task<OrganizationDto> Handle(GetSpecificOrganization request, CancellationToken cancellationToken);
 }
 
 // The Handlers for the Queries
 public class GetOrganizationsQueryHandler(
     IOrganizationCacheServices organizationCacheServices) : 
     IRequestHandler<GetAllOrganizationsQuery, 
-                    IEnumerable<Organization>>, 
+                    IEnumerable<OrganizationDto>>, 
     IGetOrganizationsQueryHandler
 {
-    public async Task<IEnumerable<Organization>> Handle(GetAllOrganizationsQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<OrganizationDto>> Handle(GetAllOrganizationsQuery request, CancellationToken cancellationToken)
     {
-        return await organizationCacheServices.GetAllOrganizationsAsync();
+        return await organizationCacheServices.GetAllOrganizationsAsync(request.rebuildCache, cancellationToken);
     }
 }
 
@@ -40,11 +40,11 @@ public class GetOrganizationsQueryHandler(
 public class GetSpecificOrganizationQueryHandler(
     IOrganizationCacheServices organizationCacheServices) : 
     IRequestHandler<GetSpecificOrganization, 
-        Organization>,
-    IGetOrganizationBySsoOrganizationIdQueryHandler
+        OrganizationDto>,
+    IGetSpecificOrganizationQueryHandler
 {
-    public async Task<Organization> Handle(GetSpecificOrganization request, CancellationToken cancellationToken)
+    public async Task<OrganizationDto> Handle(GetSpecificOrganization request, CancellationToken cancellationToken)
     {
-        return await organizationCacheServices.GetSpecificOrganizationAsync(request.Organization);
+        return await organizationCacheServices.GetSpecificOrganizationAsync(request.Organization, cancellationToken);
     }
 }
