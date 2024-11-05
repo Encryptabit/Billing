@@ -1,12 +1,20 @@
 ﻿@page "/external"
+@using System.Collections
+@using Billing.Application.UseCases.Billing
 @using Billing.Application.UseCases.Organizations
+@using Billing.Domain.Entities
 @using Billing.Domain.Entities.Dto
 @using Billing.Infrastructure.Persistence
 @using WorkOS
 @inject IGetWorkOSConnectionsQueryHandler GetWorkOSConnectionsQueryHandler
 @inject IGetIdentityServerRestApiConnectionsQueryHandler GetIdentityServerRestApiConnectionsQueryHandler
-@inject IGetOrganizationsQueryHandler GetOrganizationsQueryHandler
+@inject IGetBillingHistoryQueryHandler GetBillingHistoryQueryHandler
+@inject IGetDatabasesQueryHandler GetDatabasesQueryHandler
+@inject IGetDistributorEndUsersQueryHandler GetDistributorEndUsersQueryHandler
+@inject IGetDistributorsQueryHandler GetDistributorsQueryHandler
 @inject IGetEndUsersQueryHandler GetEndUsersQueryHandler
+@inject IGetEndUserDatabasesQueryHandler GetEndUserDatabasesQueryHandler
+@inject IGetOrganizationsQueryHandler GetOrganizationsQueryHandler
 @rendermode InteractiveServer
 @attribute [StreamRendering]
 
@@ -73,14 +81,21 @@
         <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshDatabaseInformation(true); }">Query Databases and Rebuild Cache</FluentButton>
     </FluentStack>
 </FluentGridItem>
-<FluentGridItem xs="12" md="6" lg="4">
+<FluentGridItem xs="12" md="6"> 
     <FluentCard MinimalStyle="true">
-        <h4>Organizations</h4>
-        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+        <h4>BillingHistory</h4>
+        <FluentDataGrid @ref="_billingDbGrid" Pagination="_billingPagination" Items="@_billingDtos">
             <ChildContent>
-                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.RecordID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.DbId)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.ArcturusType)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Billed)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.LastBillDate)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.NextBillDate)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.BillingCycle)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.BillingCycleCustom)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.VMI)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.TimeStamp)" Sortable="true"/>
             </ChildContent>
             <EmptyContent>
                 <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
@@ -95,17 +110,19 @@
                 </FluentStack>
             </LoadingContent>
         </FluentDataGrid>
-        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+        <FluentPaginator State="_billingPagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllBillingAsync(true); _billingDtos = results.AsQueryable(); _billingDbGrid.SetLoadingState(false); }">Get All BillingHistory</FluentButton>
     </FluentCard>
 </FluentGridItem>
-<FluentGridItem xs="12" md="6" lg="4">
+<FluentGridItem xs="12" md="6"> 
     <FluentCard MinimalStyle="true">
-        <h4>Organizations</h4>
-        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+        <h4>Databases</h4>
+        <FluentDataGrid @ref="_databaseDbGrid" Pagination="_databasePagination" Items="@_databaseDtos">
             <ChildContent>
-                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.DbId)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Company)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.ArcturusType)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Vmi)" Sortable="true"/>
             </ChildContent>
             <EmptyContent>
                 <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
@@ -120,17 +137,18 @@
                 </FluentStack>
             </LoadingContent>
         </FluentDataGrid>
-        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+        <FluentPaginator State="_databasePagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDatabasesAsync(true); _databaseDtos = results.AsQueryable(); _databaseDbGrid.SetLoadingState(false); }">Get All Databases</FluentButton>
     </FluentCard>
 </FluentGridItem>
-<FluentGridItem xs="12" md="6" lg="4">
+<FluentGridItem xs="12" md="6">
     <FluentCard MinimalStyle="true">
-        <h4>Organizations</h4>
-        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+        <h4>DistributorEndUser</h4>
+        <FluentDataGrid @ref="_distributorEndUserDbGrid" Pagination="_distributorEndUserPagination" Items="@_distributorEndUserDtos">
             <ChildContent>
-                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.DistributorId)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.EndUserId)" Sortable="true"/>
             </ChildContent>
             <EmptyContent>
                 <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
@@ -145,17 +163,19 @@
                 </FluentStack>
             </LoadingContent>
         </FluentDataGrid>
-        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+        <FluentPaginator State="_distributorEndUserPagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDistributorEndUsersAsync(true); _distributorEndUserDtos = results.AsQueryable(); _distributorEndUserDbGrid.SetLoadingState(false); }">Get All DistributorEndUsers</FluentButton>
     </FluentCard>
 </FluentGridItem>
-<FluentGridItem xs="12" md="6" lg="4">
+<FluentGridItem xs="12" md="6" >
     <FluentCard MinimalStyle="true">
-        <h4>Organizations</h4>
-        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+        <h4>Distributors</h4>
+        <FluentDataGrid @ref="_distributorDbGrid" Pagination="_distributorPagination" Items="@_distributorDtos">
             <ChildContent>
-                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Name)" Sortable="true"/>
                 <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Direct)" Sortable="true"/>
             </ChildContent>
             <EmptyContent>
                 <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
@@ -170,17 +190,18 @@
                 </FluentStack>
             </LoadingContent>
         </FluentDataGrid>
-        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+        <FluentPaginator State="_distributorPagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDistributorsAsync(true); _distributorDtos = results.AsQueryable(); _distributorDbGrid.SetLoadingState(false); }">Get All Distributors</FluentButton>
     </FluentCard>
 </FluentGridItem>
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
-        <h4>Organizations</h4>
-        <FluentDataGrid @ref="_orgDbGrid" Items="@_organizationDtos">
+        <h4>EndUserDatabase Database</h4>
+        <FluentDataGrid Pagination="_endUserDatabasePagination" @ref="_endUserDatabaseDbGrid" Items="@_endUserDatabaseDtos">
             <ChildContent>
-                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.DbId)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.EndUserId)" Sortable="true"/>
             </ChildContent>
             <EmptyContent>
                 <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
@@ -195,12 +216,16 @@
                 </FluentStack>
             </LoadingContent>
         </FluentDataGrid>
-        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { await GetAllOrganizationsAsync(true); }">Get All Organizations</FluentButton>
+        <FluentPaginator State="_endUserDatabasePagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent"
+                      OnClick="async () => { var results = await GetAllEndUserDatabasesAsync(true); _endUserDatabaseDtos = results.AsQueryable(); _endUserDatabaseDbGrid.SetLoadingState(false); }">
+            Get All End-Users
+        </FluentButton>
     </FluentCard>
 </FluentGridItem>
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
-        <h4>End-Users Database</h4>
+        <h4>EndUserDatabase</h4>
         <FluentDataGrid Pagination="_endUserPagination" @ref="_endUserDbGrid" Items="@_endUserDtos">
             <ChildContent>
                 <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
@@ -222,7 +247,9 @@
         </FluentDataGrid>
         <FluentPaginator State="_endUserPagination"></FluentPaginator>
         <FluentButton Appearance="Appearance.Accent"
-                     OnClick="async () => { var results = await GetAllEndUsersAsync(true); _endUserDtos = results.AsQueryable(); _endUserDbGrid.SetLoadingState(false); }">Get All End-Users</FluentButton>
+                      OnClick="async () => { var results = await GetAllEndUsersAsync(true); _endUserDtos = results.AsQueryable(); _endUserDbGrid.SetLoadingState(false); }">
+            Get All End-Users
+        </FluentButton>
 
     </FluentCard>
 </FluentGridItem>
@@ -280,10 +307,16 @@
     FluentDataGrid<DatabaseDto>? _databaseDbGrid;
     FluentDataGrid<DistributorEndUserDto>? _distributorEndUserDbGrid;
     FluentDataGrid<DistributorDto>? _distributorDbGrid;
-    FluentDataGrid<EndUserDatabaseDto>? _endUserDatabseDbGrid;
+    FluentDataGrid<EndUserDatabaseDto>? _endUserDatabaseDbGrid;
     FluentDataGrid<EndUserDto>? _endUserDbGrid;
-    PaginationState _endUserPagination = new() { ItemsPerPage = 10 };
     FluentDataGrid<OrganizationDto>? _orgDbGrid;
+
+    private PaginationState? _endUserDatabasePagination = new() { ItemsPerPage = 10 };
+    private PaginationState? _endUserPagination = new() { ItemsPerPage = 10 };
+    private PaginationState? _billingPagination = new() { ItemsPerPage = 10 };
+    private PaginationState? _databasePagination = new() { ItemsPerPage = 10 };
+    private PaginationState? _distributorPagination = new() { ItemsPerPage = 10 };
+    private PaginationState? _distributorEndUserPagination = new() { ItemsPerPage = 10 };
 
     protected override async Task OnInitializedAsync()
     {
@@ -349,6 +382,101 @@
     }
 
 
+    private Task<IEnumerable<BillingDto>> GetAllBillingAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllBillingHistoryQuery(rebuildCache);
+
+        if (rebuildCache)
+        {
+            _billingDtos = null;
+            _billingDbGrid?.SetLoadingState(true);
+        }
+
+        return GetBillingHistoryQueryHandler.Handle(
+            query,
+            new CancellationToken());
+        throw new NotImplementedException();
+    }
+
+    private Task<IEnumerable<DatabaseDto>> GetAllDatabasesAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllDatabasesQuery(rebuildCache);
+
+        if (rebuildCache)
+        {
+            _databaseDtos = null;
+            _databaseDbGrid?.SetLoadingState(true);
+        }
+
+        return GetDatabasesQueryHandler.Handle(
+            query,
+            new CancellationToken());
+        throw new NotImplementedException();
+    }
+
+
+    private Task<IEnumerable<DistributorEndUserDto>> GetAllDistributorEndUsersAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllDistributorEndUsersQuery(rebuildCache);
+
+        if (rebuildCache)
+        {
+            _distributorEndUserDtos = null;
+            _distributorEndUserDbGrid?.SetLoadingState(true);
+        }
+
+        return GetDistributorEndUsersQueryHandler.Handle(
+            query,
+            new CancellationToken());
+        throw new NotImplementedException();
+    }
+
+    private Task<IEnumerable<DistributorDto>> GetAllDistributorsAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllDistributorsQuery(rebuildCache);
+
+        if (rebuildCache)
+        {
+            _distributorDtos = null;
+            _distributorDbGrid?.SetLoadingState(true);
+        }
+
+        return GetDistributorsQueryHandler.Handle(
+            query,
+            new CancellationToken());
+    }
+
+
+    private Task<IEnumerable<EndUserDatabaseDto>> GetAllEndUserDatabasesAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllEndUserDatabasesQuery(rebuildCache);
+
+        if (rebuildCache)
+        {
+            _endUserDatabaseDtos = null;
+            _endUserDatabaseDbGrid?.SetLoadingState(true);
+        }
+
+        return GetEndUserDatabasesQueryHandler.Handle(
+            query,
+            new CancellationToken());
+    }
+
+    private Task<IEnumerable<EndUserDto>> GetAllEndUsersAsync(bool rebuildCache = false)
+    {
+        var query = new GetAllEndUsersQuery(rebuildCache);
+
+        if (rebuildCache)
+        {
+            _endUserDtos = null;
+            _endUserDbGrid?.SetLoadingState(true);
+        }
+
+        return GetEndUsersQueryHandler.Handle(
+            query,
+            new CancellationToken());
+    }
+
     private Task<IEnumerable<OrganizationDto>> GetAllOrganizationsAsync(bool rebuildCache = false)
     {
         var query = new GetAllOrganizationsQuery(rebuildCache);
@@ -364,33 +492,33 @@
             new CancellationToken());
     }
 
-    private Task<IEnumerable<EndUserDto>> GetAllEndUsersAsync(bool rebuildCache = false)
-    {
-        var query = new GetAllEndUsersQuery(rebuildCache);
-        
-        if (rebuildCache)
-        {
-            _endUserDtos = null;
-            _endUserDbGrid?.SetLoadingState(true);
-        }
-
-        return GetEndUsersQueryHandler.Handle(
-            query,
-            new CancellationToken());
-    }
-
 
     public async Task RefreshDatabaseInformation(bool rebuildCache = false)
     {
+        Task<IEnumerable<BillingDto>> bTask = GetAllBillingAsync(rebuildCache);
+        Task<IEnumerable<DatabaseDto>> dbTask = GetAllDatabasesAsync(rebuildCache);
+        Task<IEnumerable<DistributorEndUserDto>> dEuTask = GetAllDistributorEndUsersAsync(rebuildCache);
+        Task<IEnumerable<DistributorDto>> dTask = GetAllDistributorsAsync(rebuildCache);
+        Task<IEnumerable<EndUserDatabaseDto>> euDbTask = GetAllEndUserDatabasesAsync(rebuildCache);
         Task<IEnumerable<EndUserDto>> euTask = GetAllEndUsersAsync(rebuildCache);
         Task<IEnumerable<OrganizationDto>> oTask = GetAllOrganizationsAsync(rebuildCache);
 
         List<Task> tasks = new List<Task>()
         {
+            bTask,
+            dbTask,
+            dEuTask,
+            dTask,
+            euDbTask,
             euTask,
             oTask
         };
 
+        IEnumerable<BillingDto> bList = new List<BillingDto>();
+        IEnumerable<DatabaseDto> dbList = new List<DatabaseDto>();
+        IEnumerable<DistributorEndUserDto> dEuList = new List<DistributorEndUserDto>();
+        IEnumerable<DistributorDto> dList = new List<DistributorDto>();
+        IEnumerable<EndUserDatabaseDto> euDbList = new List<EndUserDatabaseDto>();
         IEnumerable<EndUserDto> euList = new List<EndUserDto>();
         IEnumerable<OrganizationDto> oList = new List<OrganizationDto>();
 
@@ -400,6 +528,36 @@
 
             switch (result)
             {
+                case var value when value == bTask: 
+                    bList = await bTask;
+                    _billingDtos = bList.AsQueryable();
+                    _billingDbGrid?.SetLoadingState(false);
+                    StateHasChanged();
+                    break;
+                case var value when value == dbTask:
+                    dbList = await dbTask;
+                    _databaseDtos = dbList.AsQueryable();
+                    _databaseDbGrid?.SetLoadingState(false);
+                    StateHasChanged();
+                    break;
+                case var value when value == dEuTask:
+                    dEuList = await dEuTask;
+                    _distributorEndUserDtos = dEuList.AsQueryable();
+                    _distributorEndUserDbGrid?.SetLoadingState(false);
+                    StateHasChanged();
+                    break;
+                case var value when value == dTask:
+                    dList = await dTask;
+                    _distributorDtos = dList.AsQueryable();
+                    _distributorDbGrid?.SetLoadingState(false);
+                    StateHasChanged();
+                    break;
+                case var value when value == euDbTask:
+                    euDbList = await euDbTask;
+                    _endUserDatabaseDtos = euDbList.AsQueryable();
+                    _endUserDatabaseDbGrid?.SetLoadingState(false);
+                    StateHasChanged();
+                    break;
                 case var value when value == euTask:
                     euList = await euTask;
                     _endUserDtos = euList.AsQueryable();
@@ -420,5 +578,6 @@
             tasks.Remove(result);
         }
     }
+
 
 }

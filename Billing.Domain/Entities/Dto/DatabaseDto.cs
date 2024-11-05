@@ -12,6 +12,4 @@ public class DatabaseDto
     public Billing BillingHistory { get; set; }
     public bool Vmi { get; set; }
     public short ArcturusType{ get; set; }
-    public bool RestApiAccess  { get; set; } 
-    public bool SsoAccess { get; set; }
 }

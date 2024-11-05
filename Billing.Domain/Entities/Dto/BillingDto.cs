@@ -10,10 +10,10 @@ public class BillingDto
     public int RecordID { get; set; }
     public int DbId { get; set; }
     public short ArcturusType { get; set; }
-    public int BillingCycle { get; set; }
-    public int BillingCycleCustom { get; set; }
-    public DateTime NextBillDate{ get; set; }
-    public DateTime LastBillDate { get; set; }
+    public int? BillingCycle { get; set; }
+    public int? BillingCycleCustom { get; set; }
+    public DateTime? NextBillDate{ get; set; }
+    public DateTime? LastBillDate { get; set; }
     public bool VMI { get; set; }
     public bool Billed { get; set; }
     public int EventId { get; set; }

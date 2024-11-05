@@ -25,7 +25,7 @@ internal class AppDbContext(
            modelBuilder.Entity<DatabaseDto>().ToTable("Databases","dbo");
            modelBuilder.Entity<EndUserDto>().ToTable("EndUsers","dbo");
            modelBuilder.Entity<DistributorDto>().ToTable("Distributors","dbo");
-           modelBuilder.Entity<DistributorEndUserDto>().ToTable("DistributorEndUsers","dbo");
+           modelBuilder.Entity<DistributorEndUserDto>().ToTable("DistributorEndUser","dbo");
            modelBuilder.Entity<EndUserDatabaseDto>().ToTable("EndUserDatabase","dbo");
        }
 }

@@ -3,7 +3,6 @@
 namespace Billing.Domain.Entities;
 
 public class Bill(
-    int dbId,
     int billingCycle,
     bool billed,
     DateTime billDate,
@@ -11,8 +10,6 @@ public class Bill(
     DateTime lastBillDate,
     DateTime billedOn)
 {
-    [Key]
-    public int DbId { get; set; } = dbId;
     public int BillingCycle { get; set; } = billingCycle;
     public bool Billed { get; set; } = billed;
     public DateTime BillDate { get; set; } = billDate;
