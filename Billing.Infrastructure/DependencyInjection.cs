@@ -18,7 +18,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("AutoCribCRM");
-        services.AddDbContextFactory<AppDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+        services.AddDbContextFactory<AppDbContext>(options => options.UseSqlServer(connectionString, o => o.UseCompatibilityLevel(110)), ServiceLifetime.Scoped);
         services.AddScoped<IBillingRepository, BillingRepository>();
         services.AddScoped<IDatabasesRepository, DatabasesRepository>();
         services.AddScoped<IDistributorEndUserRepository, DistributorEndUserRepository>();

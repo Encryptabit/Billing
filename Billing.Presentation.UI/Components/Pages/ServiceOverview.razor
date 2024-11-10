@@ -78,19 +78,20 @@
         <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshDatabaseInformation(true); }">Query Databases and Rebuild Cache</FluentButton>
     </FluentStack>
 </FluentGridItem>
+
 <FluentGridItem xs="12">
     <FluentCard MinimalStyle="true">
         <h4>BillingHistory</h4>
         <FluentDataGrid @ref="_billingDbGrid"
                         ResizableColumns="true"
                         Pagination="_billingPagination"
-                        Items="@_filteredBillingDtos">
+                        Items="@FilteredBillingDtos">
             <ChildContent>
                 <PropertyColumn Property="@(o => o.RecordID)" Sortable="true"/>
                 <PropertyColumn Property="@(o => o.DbId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(DbIdFilter)">
                     <ColumnOptions>
                         <div class="search-box">
-                            <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="HandleDbIdFilter" AfterBindValue="HandleClear" Placeholder="Enter DbId..."/>
+                            <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="HandleDbIdFilter" Placeholder="Enter DbId..."/>
                         </div>
                     </ColumnOptions>
                 </PropertyColumn>
@@ -121,95 +122,13 @@
         <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllBillingAsync(true); _billingDtos = results.AsQueryable(); _billingDbGrid?.SetLoadingState(false); }">Get All BillingHistory</FluentButton>
     </FluentCard>
 </FluentGridItem>
-<FluentGridItem xs="12" md="6">
-    <FluentCard MinimalStyle="true">
-        <h4>Databases</h4>
-        <FluentDataGrid @ref="_databaseDbGrid"
-                        ResizableColumns="true"
-                        Pagination="_databasePagination"
-                        Items="@_filteredDatabaseDtos">
-            <ChildContent>
-                <PropertyColumn Property="@(o => o.DbId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(DbIdFilter)">
-                    <ColumnOptions>
-                        <div class="search-box">
-                            <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="HandleDbIdFilter" AfterBindValue="HandleClear" Placeholder="Enter DbId..."/>
-                        </div>
-                    </ColumnOptions>
-                </PropertyColumn>
-                <PropertyColumn Property="@(o => o.Company)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.ArcturusType)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.Vmi)" Sortable="true"/>
-            </ChildContent>
-            <EmptyContent>
-                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                    Loading...<br/>
-                    <FluentProgress Width="239px"/>
-                </FluentStack>
-            </EmptyContent>
-            <LoadingContent>
-                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                    Loading...<br/>
-                    <FluentProgress Width="239px"/>
-                </FluentStack>
-            </LoadingContent>
-        </FluentDataGrid>
-        <FluentPaginator State="_databasePagination"></FluentPaginator>
-        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDatabasesAsync(true); _databaseDtos = results.AsQueryable(); _databaseDbGrid?.SetLoadingState(false); }">Get All Databases</FluentButton>
-    </FluentCard>
-</FluentGridItem>
-
-<FluentGridItem xs="12" md="6">
-    <FluentCard MinimalStyle="true">
-        <h4>EndUserDatabase </h4>
-        <FluentDataGrid Pagination="_endUserDatabasePagination"
-                        ResizableColumns="true"
-                        @ref="_endUserDatabaseDbGrid"
-                        Items="@_filteredEndUserDatabaseDtos">
-
-            <ChildContent>
-                <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.DbId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(DbIdFilter)">
-                    <ColumnOptions>
-                        <div class="search-box">
-                            <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="HandleDbIdFilter" AfterBindValue="HandleClear" Placeholder="Enter DbId..."/>
-                        </div>
-                    </ColumnOptions>
-                </PropertyColumn>
-                <PropertyColumn Property="@(o => o.EndUserId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(EndUserIdFilter)">
-                    <ColumnOptions>
-                        <div class="search-box">
-                            <FluentSearch type="search" Autofocus=true @bind-Value=EndUserIdFilter @oninput="HandleEndUserIdFilter" AfterBindValue="HandleClear" Placeholder="Enter EndUserId..."/>
-                        </div>
-                    </ColumnOptions>
-                </PropertyColumn>
-            </ChildContent>
-            <EmptyContent>
-                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                    Loading...<br/>
-                    <FluentProgress Width="239px"/>
-                </FluentStack>
-            </EmptyContent>
-            <LoadingContent>
-                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                    Loading...<br/>
-                    <FluentProgress Width="239px"/>
-                </FluentStack>
-            </LoadingContent>
-        </FluentDataGrid>
-        <FluentPaginator State="_endUserDatabasePagination"></FluentPaginator>
-        <FluentButton Appearance="Appearance.Accent"
-                      OnClick="async () => { var results = await GetAllEndUserDatabasesAsync(true); _endUserDatabaseDtos = results.AsQueryable(); _endUserDatabaseDbGrid?.SetLoadingState(false); }">
-            Get All End-Users
-        </FluentButton>
-    </FluentCard>
-</FluentGridItem>
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>Distributors</h4>
         <FluentDataGrid @ref="_distributorDbGrid"
                         ResizableColumns="true"
                         Pagination="_distributorPagination"
-                        Items="@_filteredDistributorDtos">
+                        Items="@FilteredDistributorDtos">
             <ChildContent>
                 <PropertyColumn Property="@(o => o.Id)" Sortable="true" Filtered="!string.IsNullOrEmpty(DistributorIdFilter)">
 
@@ -250,7 +169,7 @@
 <FluentGridItem xs="12" md="4" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>DistributorEndUser</h4>
-        <FluentDataGrid @ref="_distributorEndUserDbGrid" ResizableColumns="true" Pagination="_distributorEndUserPagination" Items="@_filteredDistributorEndUserDtos">
+        <FluentDataGrid @ref="_distributorEndUserDbGrid" ResizableColumns="true" Pagination="_distributorEndUserPagination" Items="@FilteredDistributorEndUserDtos">
             <ChildContent>
                 <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
                 <PropertyColumn Property="@(o => o.DistributorId)" Sortable="true" Filtered="!string.IsNullOrEmpty(DistributorIdFilter)">
@@ -293,7 +212,7 @@
         <FluentDataGrid Pagination="_endUserPagination"
                         ResizableColumns="true"
                         @ref="_endUserDbGrid"
-                        Items="@_filteredEndUserDtos">
+                        Items="@FilteredEndUserDtos">
             <ChildContent>
                 <PropertyColumn Property="@(o => o.Id)" Sortable="true" Filtered="!string.IsNullOrEmpty(EndUserIdFilter)">
                     <ColumnOptions>
@@ -306,7 +225,7 @@
                 <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true" Filtered="!string.IsNullOrEmpty(OrganizationIdFilter)">
                     <ColumnOptions>
                         <div class="search-box">
-                            <FluentSearch type="search" Autofocus=true @bind-Value=OrganizationIdFilter @oninput="HandleOrgIdFilter" AfterBindValue="HandleClear" Placeholder="Enter OrgId..."/>
+                            <FluentSearch type="search" Autofocus=true @bind-Value=OrganizationIdFilter @oninput="HandleOrgIdFilter" Placeholder="Enter OrgId..."/>
                         </div>
                     </ColumnOptions>
                 </PropertyColumn>
@@ -334,13 +253,96 @@
     </FluentCard>
 </FluentGridItem>
 
+
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>EndUserDatabase </h4>
+        <FluentDataGrid Pagination="_endUserDatabasePagination"
+                        ResizableColumns="true"
+                        @ref="_endUserDatabaseDbGrid"
+                        Items="@FilteredEndUserDatabaseDtos">
+
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.Id)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.DbId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(DbIdFilter)">
+                    <ColumnOptions>
+                        <div class="search-box">
+                            <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="HandleDbIdFilter" AfterBindValue="HandleClear" Placeholder="Enter DbId..."/>
+                        </div>
+                    </ColumnOptions>
+                </PropertyColumn>
+                <PropertyColumn Property="@(o => o.EndUserId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(EndUserIdFilter)">
+                    <ColumnOptions>
+                        <div class="search-box">
+                            <FluentSearch type="search" Autofocus=true @bind-Value=EndUserIdFilter @oninput="HandleEndUserIdFilter" AfterBindValue="HandleClear" Placeholder="Enter EndUserId..."/>
+                        </div>
+                    </ColumnOptions>
+                </PropertyColumn>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentPaginator State="_endUserDatabasePagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent"
+                      OnClick="async () => { var results = await GetAllEndUserDatabasesAsync(true); _endUserDatabaseDtos = results.AsQueryable(); _endUserDatabaseDbGrid?.SetLoadingState(false); }">
+            Get All End-Users
+        </FluentButton>
+    </FluentCard>
+</FluentGridItem>
+<FluentGridItem xs="12" md="6" lg="4">
+    <FluentCard MinimalStyle="true">
+        <h4>Databases</h4>
+        <FluentDataGrid @ref="_databaseDbGrid"
+                        ResizableColumns="true"
+                        Pagination="_databasePagination"
+                        Items="@FilteredDatabaseDtos">
+            <ChildContent>
+                <PropertyColumn Property="@(o => o.DbId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(DbIdFilter)">
+                    <ColumnOptions>
+                        <div class="search-box">
+                            <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="HandleDbIdFilter" Placeholder="Enter DbId..."/>
+                        </div>
+                    </ColumnOptions>
+                </PropertyColumn>
+                <PropertyColumn Property="@(o => o.Company)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.ArcturusType)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.Vmi)" Sortable="true"/>
+            </ChildContent>
+            <EmptyContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </EmptyContent>
+            <LoadingContent>
+                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                    Loading...<br/>
+                    <FluentProgress Width="239px"/>
+                </FluentStack>
+            </LoadingContent>
+        </FluentDataGrid>
+        <FluentPaginator State="_databasePagination"></FluentPaginator>
+        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDatabasesAsync(true); _databaseDtos = results.AsQueryable(); _databaseDbGrid?.SetLoadingState(false); }">Get All Databases</FluentButton>
+    </FluentCard>
+</FluentGridItem>
+
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>Organizations</h4>
         <FluentDataGrid @ref="_orgDbGrid"
                         Pagination="_organizationPagination"
                         ResizableColumns="true"
-                        Items="@_filteredOrganizationDtos">
+                        Items="@FilteredOrganizationDtos">
             <ChildContent>
                 <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
                 <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true" Filtered="!string.IsNullOrEmpty(OrganizationIdFilter)">
@@ -383,39 +385,43 @@
 
     // Databases
     private IQueryable<BillingDto>? _billingDtos;
-    private IQueryable<BillingDto>? _filteredBillingDtos => _billingDtos?.Where(bDto => bDto.DbId.ToString().Contains(DbIdFilter));
+    private IQueryable<BillingDto>? FilteredBillingDtos => _billingDtos?.Where(bDto => bDto.DbId.ToString().Contains(DbIdFilter));
 
 
     private IQueryable<DatabaseDto>? _databaseDtos;
-    private IQueryable<DatabaseDto>? _filteredDatabaseDtos => _databaseDtos?.Where(dbDto => dbDto.DbId.ToString().Contains(DbIdFilter));
+    private IQueryable<DatabaseDto>? FilteredDatabaseDtos => _databaseDtos?.Where(dbDto => dbDto.DbId.ToString().Contains(DbIdFilter));
 
     private IQueryable<EndUserDatabaseDto>? _endUserDatabaseDtos;
-    private IQueryable<EndUserDatabaseDto>? _filteredEndUserDatabaseDtos =>
+
+    private IQueryable<EndUserDatabaseDto>? FilteredEndUserDatabaseDtos =>
         _endUserDatabaseDtos?
             .Where(eudbDto => eudbDto.DbId.ToString().Contains(DbIdFilter))
             .Where(eudbDto => eudbDto.EndUserId.ToString().Contains(EndUserIdFilter));
 
     private IQueryable<DistributorEndUserDto>? _distributorEndUserDtos;
-    private IQueryable<DistributorEndUserDto>? _filteredDistributorEndUserDtos =>
+
+    private IQueryable<DistributorEndUserDto>? FilteredDistributorEndUserDtos =>
         _distributorEndUserDtos?
             .Where(dEuDto => dEuDto.DistributorId.ToString().Contains(DistributorIdFilter))
             .Where(dEuDto => dEuDto.EndUserId.ToString().Contains(EndUserIdFilter));
 
 
     private IQueryable<DistributorDto>? _distributorDtos;
-    private IQueryable<DistributorDto>? _filteredDistributorDtos =>
+
+    private IQueryable<DistributorDto>? FilteredDistributorDtos =>
         _distributorDtos?
-            .Where(dDto => dDto.OrganizationID.ToString().Contains(OrganizationIdFilter))
+            .Where(dDto => dDto.OrganizationID.ToString()!.Contains(OrganizationIdFilter))
             .Where(dDto => dDto.Id.ToString().Contains(DistributorIdFilter));
 
     private IQueryable<EndUserDto>? _endUserDtos;
-    private IQueryable<EndUserDto>? _filteredEndUserDtos => 
+
+    private IQueryable<EndUserDto>? FilteredEndUserDtos =>
         _endUserDtos?
             .Where(euDto => euDto.Id.ToString().Contains(EndUserIdFilter))
-            .Where(euDto => euDto.OrganizationID.ToString().Contains(OrganizationIdFilter));
+            .Where(euDto => euDto.OrganizationID.ToString()!.Contains(OrganizationIdFilter));
 
     private IQueryable<OrganizationDto>? _organizationDtos;
-    private IQueryable<OrganizationDto>? _filteredOrganizationDtos => _organizationDtos?.Where(oDto => oDto.OrganizationID.ToString().Contains(OrganizationIdFilter));
+    private IQueryable<OrganizationDto>? FilteredOrganizationDtos => _organizationDtos?.Where(oDto => oDto.OrganizationID.ToString().Contains(OrganizationIdFilter));
 
 
     // Grids
@@ -486,19 +492,6 @@
         if (args.Value is string value)
         {
             DistributorIdFilter = value;
-        }
-    }
-
-    private void HandleClear()
-    {
-        if (string.IsNullOrWhiteSpace(DbIdFilter))
-        {
-            DbIdFilter = string.Empty;
-        }
-
-        if (string.IsNullOrWhiteSpace(OrganizationIdFilter))
-        {
-            OrganizationIdFilter = string.Empty;
         }
     }
 

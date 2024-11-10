@@ -9,10 +9,12 @@ internal class DistributorsRepository(
 {
     public async Task<List<DistributorDto>> GetAllAsync()
     {
-        using (var ctx = _factory.CreateDbContext())
-        {
+         using (var ctx = _factory.CreateDbContext())
+         {
+            
+            
             return await ctx.Distributors.AsQueryable().ToListAsync();
-        }
+         }
     }
 
     public async Task<DistributorDto> GetSpecificDistributorAsync()

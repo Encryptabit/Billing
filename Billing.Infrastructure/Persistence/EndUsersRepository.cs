@@ -11,7 +11,7 @@ internal class EndUsersRepository(
     {
         using (var ctx = _factory.CreateDbContext())
         {
-            return await ctx.EndUsers.AsQueryable().ToListAsync();
+            return await ctx.EndUsers.ToListAsync();
         }
     }
 

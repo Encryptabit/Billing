@@ -14,14 +14,13 @@ internal class DistributorEndUserRepository(
         }
     }
 
-    public async Task<DistributorEndUserDto> GetSpecificDistributorEndUserAsync(DistributorEndUserDto distributorEndUserDto)
+    public async Task<DistributorEndUserDto> GetSpecificDistributorEndUserAsync(
+        DistributorEndUserDto distributorEndUserDto)
     {
-        
         using (var ctx = _factory.CreateDbContext())
         {
             return await ctx.DistributorEndUsers.FirstOrDefaultAsync(x =>
-                        x.Id == distributorEndUserDto.Id);
+                x.Id == distributorEndUserDto.Id);
         }
-        
     }
 }
