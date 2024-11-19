@@ -1,0 +1,62 @@
+﻿@using Billing.Domain.Entities.Dto
+<h3>BillingHistoryTable</h3>
+<FluentCard MinimalStyle="true">
+    <h4>BillingHistory</h4>
+    <FluentDataGrid @ref="_billingDbGrid"
+                    ResizableColumns="true"
+                    Pagination="_billingPagination"
+                    Items="@FilteredBillingDtos"
+                    AutoFit="true">
+        <ChildContent>
+            <PropertyColumn Property="@(o => o.RecordID)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.DbId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(DbIdFilter)">
+                <ColumnOptions>
+                    <div class="search-box">
+                        <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="InvokeHandler" Placeholder="Enter DbId..."/>
+                    </div>
+                </ColumnOptions>
+            </PropertyColumn>
+            <PropertyColumn Property="@(o => o.EventId)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.ArcturusType)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.Billed)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.LastBillDate)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.NextBillDate)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.BillingCycle)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.BillingCycleCustom)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.VMI)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.TimeStamp)" Sortable="true"/>
+            <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true"/>
+        </ChildContent>
+        <EmptyContent>
+            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                Loading...<br/>
+                <FluentProgress Width="239px"/>
+            </FluentStack>
+        </EmptyContent>
+        <LoadingContent>
+            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                Loading...<br/>
+                <FluentProgress Width="239px"/>
+            </FluentStack>
+        </LoadingContent>
+    </FluentDataGrid>
+    <FluentPaginator State="_billingPagination"></FluentPaginator>
+</FluentCard>
+
+@code {
+
+// Databases
+    [Parameter] public IQueryable<BillingDto> _billingDtos { get; set; }
+    [Parameter] public string DbIdFilter { get; set; }
+    [Parameter] public Action<ChangeEventArgs> FilterHandler { get;set; }
+
+    private IQueryable<BillingDto>? FilteredBillingDtos => _billingDtos?.Where(bDto => bDto.DbId.ToString().Contains(DbIdFilter));
+
+    FluentDataGrid<BillingDto>? _billingDbGrid;
+    private readonly PaginationState? _billingPagination = new() { ItemsPerPage = 10 };
+
+    private void InvokeHandler(ChangeEventArgs args)
+    {
+        FilterHandler?.Invoke(args);
+    } 
+}

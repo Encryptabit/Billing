@@ -1,14 +1,103 @@
 ﻿@page "/manage"
+@using System.Numerics
 @using Billing.Application.UseCases.Organizations
 @using Billing.Domain.Entities
-@using Billing.Domain.Entities.Dto
-@inject IGetOrganizationsQueryHandler GetOrganizationsQueryHandler
+@using Shared.ViewModels
+@inject IGetConstructedOrganizationsQueryHandler GetConstructedOrganizationsQueryHandler
+@inject IDialogService DialogService 
 @rendermode InteractiveServer
 
 <PageTitle>Manage</PageTitle>
+<FluentDataGrid
+    ResizableColumns="true"
+    Items="@queryForView"
+    ShowHover="true"
+    TGridItem="CompoundView">
+    <SelectColumn @bind-SelectedItems="SelectedItems"
+                  TGridItem="CompoundView"
+                  Sortable="true"
+                  SelectMode="DataGridSelectMode.Single"
+                  OnSelect="@(async item => {  SetOrgView(item);  })"
+                  SelectFromEntireRow="true"/>
+    <PropertyColumn Property="@(cv => cv.OrganizationId)" Sortable="true"></PropertyColumn>
+    <PropertyColumn Property="@(cv => cv.OrganizationName)" Sortable="true"></PropertyColumn>
+    <PropertyColumn Property="@(cv => cv.OrganizationType)" Sortable="true"></PropertyColumn>
+</FluentDataGrid>
+
 
 
 @code {
+    IEnumerable<Organization> _organizations;
+    IQueryable<CompoundView> queryForView = Enumerable.Empty<CompoundView>().AsQueryable();
+    List<CompoundView> _compoundViews = new();
+    public IEnumerable<CompoundView> SelectedItems = Enumerable.Empty<CompoundView>(); 
 
+    protected override async Task OnInitializedAsync()
+    {
+        var query = new GetConstructedOrganizationsQuery(false);
+
+        _organizations = await GetConstructedOrganizationsQueryHandler.Handle(
+            query,
+            new CancellationToken()
+        );
+
+        var orgs = _organizations.AsQueryable();
+
+        foreach (var organization in orgs)
+        {
+            if (organization.GetType() == typeof(EndUser))
+            {
+                var value = (EndUser)organization;
+                _compoundViews.Add(new CompoundView()
+                {
+                    OrganizationId = value.OrganizationID,
+                    OrganizationName = value.Name,
+                    LastBillDate = value.LastBillDate,
+                    NextBillDate = value.NextBillDate,
+                    Selected = false,
+                    OrganizationType = "End User",
+                    _endUser = value
+                });
+            }
+            else
+            {
+                var value = (Distributor)organization;
+                _compoundViews.Add(new CompoundView()
+                {
+                    OrganizationId = value.OrganizationID,
+                    OrganizationName = value.Name,
+                    LastBillDate = value.LastBillDate,
+                    NextBillDate = value.NextBillDate,
+                    Selected = false,
+                    OrganizationType = "Distributor",
+                    _distributor = value
+                });
+            }
+        }
+
+
+        queryForView = _compoundViews.AsQueryable();
+        SelectedItems = _compoundViews.Where(cv => cv.Selected);
+    }
+
+    private async Task SetOrgView((CompoundView Item, bool Selected) item)
+    {
+        // Set value on item  
+        item.Item.Selected = item.Selected;
+        
+    }
+
+    private static void HandlePanel(DialogResult result)
+    {
+        if (result.Cancelled)
+        {
+            return;
+        }
+
+        if (result.Data is not null)
+        {
+            return;
+        }
+    }
 
 }

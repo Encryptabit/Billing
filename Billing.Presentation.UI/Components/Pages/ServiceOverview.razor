@@ -70,7 +70,6 @@
         </FluentDataGrid>
     </FluentCard>
 </FluentGridItem>
-
 <FluentGridItem xs="12">
     <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
         <FluentDivider Style="width: 100%;"></FluentDivider>
@@ -78,49 +77,11 @@
         <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshDatabaseInformation(true); }">Query Databases and Rebuild Cache</FluentButton>
     </FluentStack>
 </FluentGridItem>
-
 <FluentGridItem xs="12">
-    <FluentCard MinimalStyle="true">
-        <h4>BillingHistory</h4>
-        <FluentDataGrid @ref="_billingDbGrid"
-                        ResizableColumns="true"
-                        Pagination="_billingPagination"
-                        Items="@FilteredBillingDtos">
-            <ChildContent>
-                <PropertyColumn Property="@(o => o.RecordID)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.DbId)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(DbIdFilter)">
-                    <ColumnOptions>
-                        <div class="search-box">
-                            <FluentSearch type="search" Autofocus=true @bind-Value=DbIdFilter @oninput="HandleDbIdFilter" Placeholder="Enter DbId..."/>
-                        </div>
-                    </ColumnOptions>
-                </PropertyColumn>
-                <PropertyColumn Property="@(o => o.EventId)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.ArcturusType)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.Billed)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.LastBillDate)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.NextBillDate)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.BillingCycle)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.BillingCycleCustom)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.VMI)" Sortable="true"/>
-                <PropertyColumn Property="@(o => o.TimeStamp)" Sortable="true"/>
-            </ChildContent>
-            <EmptyContent>
-                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                    Loading...<br/>
-                    <FluentProgress Width="239px"/>
-                </FluentStack>
-            </EmptyContent>
-            <LoadingContent>
-                <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-                    Loading...<br/>
-                    <FluentProgress Width="239px"/>
-                </FluentStack>
-            </LoadingContent>
-        </FluentDataGrid>
-        <FluentPaginator State="_billingPagination"></FluentPaginator>
-        <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllBillingAsync(true); _billingDtos = results.AsQueryable(); _billingDbGrid?.SetLoadingState(false); }">Get All BillingHistory</FluentButton>
-    </FluentCard>
+    <BillingHistoryTable _billingDtos="@_billingDtos"
+                         DbIdFilter="@DbIdFilter"
+                         FilterHandler="@HandleDbIdFilter">
+    </BillingHistoryTable>
 </FluentGridItem>
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
@@ -165,7 +126,6 @@
         <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDistributorsAsync(true); _distributorDtos = results.AsQueryable(); _distributorDbGrid?.SetLoadingState(false); }">Get All Distributors</FluentButton>
     </FluentCard>
 </FluentGridItem>
-
 <FluentGridItem xs="12" md="4" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>DistributorEndUser</h4>
@@ -205,7 +165,6 @@
         <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDistributorEndUsersAsync(true); _distributorEndUserDtos = results.AsQueryable(); _distributorEndUserDbGrid?.SetLoadingState(false); }">Get All DistributorEndUsers</FluentButton>
     </FluentCard>
 </FluentGridItem>
-
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>EndUsers</h4>
@@ -252,8 +211,6 @@
 
     </FluentCard>
 </FluentGridItem>
-
-
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>EndUserDatabase </h4>
@@ -335,7 +292,6 @@
         <FluentButton Appearance="Appearance.Accent" OnClick="async () => { var results = await GetAllDatabasesAsync(true); _databaseDtos = results.AsQueryable(); _databaseDbGrid?.SetLoadingState(false); }">Get All Databases</FluentButton>
     </FluentCard>
 </FluentGridItem>
-
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>Organizations</h4>
@@ -344,7 +300,7 @@
                         ResizableColumns="true"
                         Items="@FilteredOrganizationDtos">
             <ChildContent>
-                <PropertyColumn Property="@(o => o.Enabled)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.SSOEnabled)" Sortable="true"/>
                 <PropertyColumn Property="@(o => o.OrganizationID)" Sortable="true" Filtered="!string.IsNullOrEmpty(OrganizationIdFilter)">
                     <ColumnOptions>
                         <div class="search-box">
@@ -353,6 +309,8 @@
                     </ColumnOptions>
                 </PropertyColumn>
                 <PropertyColumn Property="@(o => o.SSOOrganizationID)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.LastBillDate)" Sortable="true"/>
+                <PropertyColumn Property="@(o => o.NextBillDate)" Sortable="true"/>
             </ChildContent>
             <EmptyContent>
                 <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
@@ -375,7 +333,6 @@
     </FluentCard>
 </FluentGridItem>
 </FluentGrid>
-
 
 @code {
 
@@ -462,7 +419,6 @@
         _orgDbGrid?.SetLoadingState(false);
     }
 
-
     private void HandleDbIdFilter(ChangeEventArgs args)
     {
         if (args.Value is string value)
@@ -470,6 +426,7 @@
             DbIdFilter = value;
         }
     }
+
 
     private void HandleOrgIdFilter(ChangeEventArgs args)
     {
@@ -574,7 +531,6 @@
             new CancellationToken());
     }
 
-
     private Task<IEnumerable<DistributorEndUserDto>> GetAllDistributorEndUsersAsync(bool rebuildCache = false)
     {
         var query = new GetAllDistributorEndUsersQuery(rebuildCache);
@@ -604,7 +560,6 @@
             query,
             new CancellationToken());
     }
-
 
     private Task<IEnumerable<EndUserDatabaseDto>> GetAllEndUserDatabasesAsync(bool rebuildCache = false)
     {
@@ -650,7 +605,6 @@
             query,
             new CancellationToken());
     }
-
 
     public async Task RefreshDatabaseInformation(bool rebuildCache = false)
     {

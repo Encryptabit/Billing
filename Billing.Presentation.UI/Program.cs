@@ -14,7 +14,7 @@ builder.Host.UseWindowsService();
 builder.Configuration.AddEnvironmentVariables("AutoCrib:");
 
 // Add Services to the container
-builder.Services.AddWindowsService(options => options.ServiceName = "Billing Processor");
+builder.Services.AddWindowsService(options => options.ServiceName = "AutoCrib.Billing");
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -40,8 +40,7 @@ var app = builder.Build();
 app.UseHangfireDashboard("/jobs", new DashboardOptions()
 {
     AppPath = null,
-    Authorization = new[] { new DashboardAuthFilter()}
-    
+    Authorization = [new DashboardAuthFilter()]
 });
 
 // Configure the HTTP request pipeline.

@@ -7,5 +7,7 @@ public class OrganizationDto
     [Key]
     public int OrganizationID { get; set; }
     public string? SSOOrganizationID { get; set; }
-    public bool? Enabled { get; set; }
+    public bool? SSOEnabled { get; set; }
+    public DateTime? LastBillDate { get; set; }
+    public DateTime? NextBillDate { get; set; }
 }

@@ -1,6 +1,7 @@
 ﻿using Billing.Domain.Entities;
 using Billing.Domain.Entities.Dto;
 using WorkOS;
+using Organization = Billing.Domain.Entities.Organization;
 
 namespace Billing.Application.Interfaces;
 
@@ -42,4 +43,5 @@ public interface IOrganizationCacheServices
         CancellationToken cancellationToken = default);
     Task<OrganizationDto> GetSpecificOrganizationAsync(OrganizationDto organization, CancellationToken cancellationToken);
 
+    Task<IEnumerable<Organization>> GetConstructedOrganizationsAsync(bool rebuildCache = false);
 }

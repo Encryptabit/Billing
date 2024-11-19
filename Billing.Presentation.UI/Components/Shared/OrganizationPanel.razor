@@ -1,0 +1,26 @@
+﻿@using Billing.Presentation.UI.Components.Shared.ViewModels
+@implements IDialogContentComponent<CompoundView>
+
+<FluentDialogBody>
+    <p>@Content.OrganizationType: @Content.OrganizationName</p>
+    <p>OrganizationID: @Content.OrganizationId</p>
+    @if (@Content.OrganizationType == "End User")
+    {
+        <p>I'm and End User!</p>
+    }
+    else
+    {
+        <p>I'm a Distributor!</p>
+    }
+</FluentDialogBody>
+
+@code {
+
+    [Parameter] public CompoundView? Content { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Content.Selected = false;
+    }
+
+}

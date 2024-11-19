@@ -7,7 +7,7 @@ public class Database(
     string company,
     bool newAuthentication,
     Bill bill,
-    Billing billHistory,
+    IEnumerable<Billing> billHistory,
     bool vmi,
     short arcturusType,
     bool restApiAccess,
@@ -16,9 +16,8 @@ public class Database(
     public int DbId { get; set; } = dbId;
     public string Company { get; set; } = company;
     public bool NewAuthentication { get; set; } = newAuthentication;
-    [NotMapped]
     public Bill ActiveBill { get; set; } = bill;
-    public Billing BillingHistory { get; set; } = billHistory;
+    public IEnumerable<Billing> BillingHistory { get; set; } = billHistory;
     public bool Vmi { get; set; } = vmi;
     public short ArcturusType{ get; set; } = arcturusType;
     public bool RestApiAccess  { get; set; } = restApiAccess;

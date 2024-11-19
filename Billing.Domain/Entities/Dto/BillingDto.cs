@@ -19,4 +19,5 @@ public class BillingDto
     public int EventId { get; set; }
     [Column("DateTime", TypeName = "date")]
     public DateTime TimeStamp { get; set; }
+    public int?  OrganizationID { get; set; }
 }
