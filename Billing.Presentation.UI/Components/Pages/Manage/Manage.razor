@@ -1,0 +1,301 @@
+﻿@page "/manage"
+@using System.Numerics
+@using Billing.Application.UseCases.Organizations
+@using Billing.Domain.Entities
+@using Shared.ViewModels
+@inject IGetConstructedOrganizationsQueryHandler GetConstructedOrganizationsQueryHandler
+@inject IDialogService DialogService 
+@rendermode InteractiveServer
+
+<PageTitle>Manage</PageTitle>
+<FluentGrid>
+    <FluentGridItem xs="12" md="6">
+        <FluentCard MinimalStyle="true">
+            <h4>Distributors & End-Users</h4>
+            <FluentDataGrid
+                ResizableColumns="true"
+                Items="@_queryForView"
+                ShowHover="true"
+                TGridItem="CompoundView"
+                Pagination="_organizationsPagination">
+                <ChildContent>
+                    <SelectColumn @bind-SelectedItems="SelectedItems"
+                                  TGridItem="CompoundView"
+                                  Sortable="true"
+                                  SelectMode="DataGridSelectMode.Single"
+                                  OnSelect="@(e => SetOrgView(e))"
+                                  Property="@(e => e.Selected)"
+                                  SelectFromEntireRow="true"/>
+                    <PropertyColumn Property="@(cv => cv.OrganizationId)" Sortable="true"></PropertyColumn>
+                    <PropertyColumn Property="@(cv => cv.OrganizationName)" Sortable="true"></PropertyColumn>
+                    <PropertyColumn Property="@(cv => cv.OrganizationType)" Sortable="true"></PropertyColumn>
+                </ChildContent>
+                <EmptyContent>
+                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                        Loading...<br/>
+                        <FluentProgress Width="239px"/>
+                    </FluentStack>
+                </EmptyContent>
+                <LoadingContent>
+                    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+                        Loading...<br/>
+                        <FluentProgress Width="239px"/>
+                    </FluentStack>
+                </LoadingContent>
+            </FluentDataGrid>
+            <FluentPaginator State="_organizationsPagination"></FluentPaginator>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="12" md="6">
+        <FluentMultiSplitter>
+            @if (SelectedDistributor is not null)
+            {
+                <FluentMultiSplitterPane>
+                    <FluentStack Orientation="Orientation.Vertical" 
+                                 HorizontalAlignment="HorizontalAlignment.Center"
+                                 VerticalAlignment="VerticalAlignment.Top"
+                                 VerticalGap="5">
+                        <FluentCard Class="organization-card--distributor-info">
+                            <h4>Distributor</h4>
+                            <div>
+                                <p><span>DistributorID:</span> @SelectedDistributor.ID</p>
+                                <p><span>OrganizationID:</span> @SelectedDistributor.OrganizationID</p>
+                                <p><span>SSO Enabled:</span> @SelectedDistributor.Enabled</p>
+                                <p><span>SSO OrganizationID:</span> @SelectedDistributor.SSOOrganizationID</p>
+                            </div>
+                        </FluentCard>
+                        <FluentCard Class="organization-card--distributor-info">
+                            <h5>Distributor</h5>
+                            <div>
+                                <p><span>DistributorID:</span> @SelectedDistributor.ID</p>
+                                <p><span>OrganizationID:</span> @SelectedDistributor.OrganizationID</p>
+                                <p><span>SSO Enabled:</span> @SelectedDistributor.Enabled</p>
+                                <p><span>SSO OrganizationID:</span> @SelectedDistributor.SSOOrganizationID</p>
+                            </div>
+                        </FluentCard>
+                        <FluentCard Class="organization-card--distributor-info">
+
+                            <h5>Active Bill</h5>
+                            <div>
+                                <p><span>DistributorID:</span> @SelectedDistributor.ID</p>
+                                <p><span>OrganizationID:</span> @SelectedDistributor.OrganizationID</p>
+                                <p><span>SSO Enabled:</span> @SelectedDistributor.Enabled</p>
+                                <p><span>SSO OrganizationID:</span> @SelectedDistributor.SSOOrganizationID</p>
+                            </div>
+                        </FluentCard>
+
+                        <FluentCard Class="organization-card--distributor-info">
+
+                            <h5>End Users</h5>
+                            <div>
+                                <p><span>DistributorID:</span> @SelectedDistributor.ID</p>
+                                <p><span>OrganizationID:</span> @SelectedDistributor.OrganizationID</p>
+                                <p><span>SSO Enabled:</span> @SelectedDistributor.Enabled</p>
+                                <p><span>SSO OrganizationID:</span> @SelectedDistributor.SSOOrganizationID</p>
+                            </div>
+                        </FluentCard>
+                        <h5>Billing History</h5>
+
+                       @* <BillingHistoryTable></BillingHistoryTable>  *@
+
+
+                    </FluentStack>
+                </FluentMultiSplitterPane>    
+            }
+           @if (SelectedEndUser is not null)
+            {
+                <FluentMultiSplitterPane>
+                    Two
+                </FluentMultiSplitterPane>    
+            } 
+           @if (SelectedDatabase is not null)
+            {
+                <FluentMultiSplitterPane>
+                    Three
+                </FluentMultiSplitterPane>
+            }
+        </FluentMultiSplitter>
+    </FluentGridItem>
+    @* <FluentGridItem xs="12" md="6"> *@
+    @*     @if (!string.IsNullOrEmpty(SelectedItem?.OrganizationType)) *@
+    @*     { *@
+    @*         <FluentTabs bind-ActiveTabId="@ActiveTabId" OnTabChange="@(e => HandleTabChange(e))" OnTabClose="HandleTabClose" Data="SelectedItem"> *@
+    @* *@
+    @* *@
+    @*             @if (@SelectedItem?.OrganizationType == "Distributor") *@
+    @*             { *@
+    @*                 <FluentTab Label="Distributor" *@
+    @*                            Id="tab-dist"> *@
+    @*                     <FluentGrid> *@
+    @*                         <FluentGridItem xs="12" md="6"> *@
+    @*                             <FluentCard MinimalStyle="true"> *@
+    @*                                 <h5>@SelectedItem.OrganizationName : @SelectedItem.OrganizationId</h5> *@
+    @*                                 <h6>Distributor ID: @SelectedItem?._distributor?.ID</h6> *@
+    @*                                 <p>Direct: @SelectedItem._distributor.Direct</p> *@
+    @*                                 <p>SSOEnabled: @SelectedItem._distributor.Enabled</p> *@
+    @*                                 <p>SSOOrganizationId: @SelectedItem._distributor.SSOOrganizationID</p> *@
+    @*                                 <p>Last Bill Date: @SelectedItem._distributor.LastBillDate</p> *@
+    @*                                 <p>Next Bill Date: @SelectedItem._distributor.NextBillDate</p> *@
+    @*                             </FluentCard> *@
+    @* *@
+    @*                         </FluentGridItem> *@
+    @*                         <FluentGridItem xs="12" md="6"> *@
+    @*                             <FluentCard MinimalStyle="true"> *@
+    @*                                 <h5>Active Bill</h5> *@
+    @*                             </FluentCard> *@
+    @*                         </FluentGridItem> *@
+    @*                     </FluentGrid> *@
+    @*                 </FluentTab> *@
+    @*             } *@
+    @*             else *@
+    @*             { *@
+    @*                 <FluentTab Label="End User" *@
+    @*                            Id="tab-enduser"> *@
+    @*                     <FluentStack HorizontalAlignment="HorizontalAlignment.Center" *@
+    @*                                  VerticalAlignment="VerticalAlignment.Center" *@
+    @*                                  Orientation="Orientation.Horizontal"> *@
+    @*                         <FluentCard MinimalStyle="true"> *@
+    @*                             <h4>@SelectedItem.OrganizationName : @SelectedItem.OrganizationId</h4> *@
+    @*                             <FluentGrid Justify="JustifyContent.SpaceBetween"> *@
+    @*                                 <FluentGridItem xs="3"> *@
+    @*                                     <p>Distributor ID: @SelectedItem._endUser.ID</p> *@
+    @*                                 </FluentGridItem> *@
+    @*                                 <FluentGridItem xs="3"> *@
+    @*                                     <p>Direct: @SelectedItem._endUser.Enabled</p> *@
+    @*                                 </FluentGridItem> *@
+    @*                                 <FluentGridItem xs="3"> *@
+    @*                                     <p>SSOEnabled: @SelectedItem._distributor.Enabled</p> *@
+    @*                                 </FluentGridItem> *@
+    @*                                 <FluentGridItem xs="3"> *@
+    @*                                     <p>SSOOrganizationId: @SelectedItem._distributor.SSOOrganizationID</p> *@
+    @*                                 </FluentGridItem> *@
+    @*                                 <FluentGridItem xs="3"> *@
+    @*                                     <p>Last Bill Date: @SelectedItem._distributor.LastBillDate</p> *@
+    @*                                 </FluentGridItem> *@
+    @*                                 <FluentGridItem xs="3"> *@
+    @*                                     <p>Next Bill Date: @SelectedItem._distributor.NextBillDate</p> *@
+    @*                                 </FluentGridItem> *@
+    @*                             </FluentGrid> *@
+    @*                         </FluentCard> *@
+    @*                     </FluentStack> *@
+    @*                 </FluentTab> *@
+    @* *@
+    @*                 <FluentTab Label="Databases" *@
+    @*                            Id="tab-db"> *@
+    @*                 </FluentTab> *@
+    @*             } *@
+    @* *@
+    @*         </FluentTabs> *@
+    @*     } *@
+    @* *@
+    @* </FluentGridItem> *@
+</FluentGrid>
+
+
+@code {
+    IEnumerable<Organization> _organizations = Enumerable.Empty<Organization>();
+    IQueryable<CompoundView> _queryForView = Enumerable.Empty<CompoundView>().AsQueryable();
+    readonly List<CompoundView> _compoundViews = new();
+    private IEnumerable<CompoundView> SelectedItems = Enumerable.Empty<CompoundView>();
+    private PaginationState? _organizationsPagination { get; set; } = new() { ItemsPerPage = 20 };
+    List<string> TabNav = ["tab-dist", "tab-enduser", "tab-db"];
+
+    string ActiveTabId = "tab-dist";
+
+
+    // Dynamic values for tabbing
+    public CompoundView? SelectedItem = default;
+    public EndUser? SelectedEndUser = default;
+    public Distributor? SelectedDistributor = default;
+    public Database? SelectedDatabase = default;
+
+
+    // On page init 
+    protected override async Task OnInitializedAsync()
+    {
+        var query = new GetConstructedOrganizationsQuery(false);
+
+        _organizations = await GetConstructedOrganizationsQueryHandler.Handle(
+            query,
+            new CancellationToken()
+        );
+
+        var orgs = _organizations.AsQueryable();
+
+        foreach (var organization in orgs)
+        {
+            if (organization.GetType() == typeof(EndUser))
+            {
+                var value = (EndUser)organization;
+                _compoundViews.Add(new CompoundView()
+                {
+                    OrganizationId = value.OrganizationID,
+                    OrganizationName = value.Name,
+                    LastBillDate = value.LastBillDate,
+                    NextBillDate = value.NextBillDate,
+                    Selected = false,
+                    OrganizationType = "End User",
+                    _endUser = value
+                });
+            }
+            else
+            {
+                var value = (Distributor)organization;
+                _compoundViews.Add(new CompoundView()
+                {
+                    OrganizationId = value.OrganizationID,
+                    OrganizationName = value.Name,
+                    LastBillDate = value.LastBillDate,
+                    NextBillDate = value.NextBillDate,
+                    Selected = false,
+                    OrganizationType = "Distributor",
+                    _distributor = value
+                });
+            }
+        }
+
+
+        _queryForView = _compoundViews.AsQueryable();
+    }
+
+    public void HandleTabClose(FluentTab tab)
+    {
+    }
+
+    public void HandleTabChange(FluentTab tab)
+    {
+        SelectedItem = SelectedItems.FirstOrDefault();
+    }
+
+
+    public void SetOrgView((CompoundView Item, bool Selected) item)
+    {
+        // Set value on item  
+        item.Item.Selected = item.Selected;
+        SelectedItem = item.Item;
+
+        if (SelectedItem?.OrganizationType == "End User")
+        {
+            SelectedEndUser = SelectedItem._endUser;
+        }
+
+        if (SelectedItem?.OrganizationType == "Distributor")
+        {
+            SelectedDistributor = SelectedItem._distributor;
+        }
+    }
+
+    private static void HandlePanel(DialogResult result)
+    {
+        if (result.Cancelled)
+        {
+            return;
+        }
+
+        if (result.Data is not null)
+        {
+            return;
+        }
+    }
+
+}

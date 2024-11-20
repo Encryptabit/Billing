@@ -3,7 +3,8 @@ using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace Billing.Presentation.UI.Components.Shared.ViewModels;
 
-public class CompoundView { 
+public class CompoundView 
+{ 
 
     public int OrganizationId { get; set; }
     public string OrganizationName { get; set; }

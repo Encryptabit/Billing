@@ -77,12 +77,10 @@
         <FluentButton Appearance="Appearance.Accent" Class="btn" @onclick="async () => { await RefreshDatabaseInformation(true); }">Query Databases and Rebuild Cache</FluentButton>
     </FluentStack>
 </FluentGridItem>
-<FluentGridItem xs="12">
-    <BillingHistoryTable _billingDtos="@_billingDtos"
-                         DbIdFilter="@DbIdFilter"
-                         FilterHandler="@HandleDbIdFilter">
+>
+    <BillingHistoryTable BillingDtos="@_billingDtos">
     </BillingHistoryTable>
-</FluentGridItem>
+
 <FluentGridItem xs="12" md="6" lg="4">
     <FluentCard MinimalStyle="true">
         <h4>Distributors</h4>
