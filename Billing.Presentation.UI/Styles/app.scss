@@ -1,0 +1,165 @@
+﻿@import '/_content/Microsoft.FluentUI.AspNetCore.Components/css/reboot.css';
+
+.navmenu-icon {
+	display: none;
+	cursor: pointer;
+	z-index: 10;
+	display: block;
+	position: absolute;
+	top: 15px;
+	left: unset;
+	right: 20px;
+	width: 20px;
+	height: 20px;
+	border: none;
+}
+.main {
+	min-height: calc(100dvh - 86px);
+	color: var(--neutral-foreground-rest);
+	align-items: stretch !important;
+	flex-direction: column !important;
+	row-gap: 0 !important;
+}
+.body-content {
+	align-self: stretch;
+	height: calc(100dvh - 86px) !important;
+	display: flex;
+}
+.content {
+	align-self: stretch !important;
+	width: 100%;
+}
+.manage {
+	width: 100dvw;
+}
+footer {
+	background: var(--neutral-layer-4);
+	color: var(--neutral-foreground-rest);
+	align-items: center;
+	padding: 10px 10px;
+	a {
+		color: var(--neutral-foreground-rest);
+		text-decoration: none;
+		&:focus {
+			outline: 1px dashed;
+			outline-offset: 3px;
+		}
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.alert {
+	border: 1px dashed var(--accent-fill-rest);
+	padding: 5px;
+}
+#blazor-error-ui {
+	background: lightyellow;
+	bottom: 0;
+	box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+	display: none;
+	left: 0;
+	padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+	position: fixed;
+	width: 100%;
+	z-index: 1000;
+	margin: 20px 0;
+	.dismiss {
+		cursor: pointer;
+		position: absolute;
+		right: 0.75rem;
+		top: 0.5rem;
+	}
+}
+.blazor-error-boundary {
+	background: url(data:image/svg+xml;
+	padding: 1rem 1rem 1rem 3.7rem;
+	color: white;
+	&::before {
+		content: "An error has occurred. ";
+	}
+}
+.loading-progress {
+	position: relative;
+	display: block;
+	width: 8rem;
+	height: 8rem;
+	margin: 20vh auto 1rem auto;
+	circle {
+		fill: none;
+		stroke: #e0e0e0;
+		stroke-width: 0.6rem;
+		transform-origin: 50% 50%;
+		transform: rotate(-90deg);
+		&:last-child {
+			stroke: #1b6ec2;
+			stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+			transition: stroke-dasharray 0.05s ease-in-out;
+		}
+	}
+}
+.loading-progress-text {
+	position: absolute;
+	text-align: center;
+	font-weight: bold;
+	inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+	&:after {
+		content: var(--blazor-load-percentage-text, "Loading");
+	}
+}
+code {
+	color: #c02d76;
+}
+.fluent-appbar {
+	margin-top: 10px;
+}
+@media {
+	(max-width {
+		&: {
+			600px) {
+				.header-gutters {
+    margin: 0.5rem 3rem 0.5rem 1.5rem !important;
+			}
+		}
+	}
+}
+[dir="rtl"] {
+	.header-gutters {
+		margin: 0.5rem 1.5rem 0.5rem 3rem !important;
+	}
+	.navmenu-icon {
+		left: 20px;
+		right: unset;
+	}
+}
+nav {
+	&.sitenav {
+		width: 100%;
+		height: 100%;
+	}
+}
+#main-menu {
+	width: 100% !important;
+	& > div {
+		&:first-child {
+			&:is(.expander) {
+				display: none;
+			}
+		}
+	}
+}
+.navmenu {
+	width: 100%;
+}
+#navmenu-toggle {
+	appearance: none;
+	& ~ nav {
+		display: none;
+	}
+	&:checked {
+		& ~ nav {
+			display: block;
+		}
+	}
+}
